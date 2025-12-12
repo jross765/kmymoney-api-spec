@@ -20,41 +20,86 @@ import xyz.schnorxoborx.base.beanbase.TransactionSplitNotFoundException;
 public class KMyMoneyStockSplitTransactionImpl extends KMyMoneyTransactionImpl
 											   implements KMyMoneyStockSplitTransaction
 {
-    @SuppressWarnings("unused")
 	private static final Logger LOGGER = LoggerFactory.getLogger(KMyMoneyStockSplitTransactionImpl.class);
+
+	// ---------------------------------------------------------------
+    
+    private static final int NOF_SPLITS = 1;
 
 	// ---------------------------------------------------------------
 
 	public KMyMoneyStockSplitTransactionImpl(KMyMoneyTransactionImpl trx) {
 		super( trx );
+		
+		try {
+			validate();
+		} catch ( TransactionValidationException exc ) {
+			throw new IllegalArgumentException("argument <trx> does not meet the criteria for a simple transaction");
+		} catch ( Exception exc ) {
+			throw new IllegalArgumentException("argument <trx>: something went wrong");
+		}
 	}
 	
 	// ---------------------------------------------------------------
 
 	@Override
 	protected void addSplit(KMyMoneyTransactionSplitImpl splt) {
-		if ( getSplitsCount() == 1 ) {
+		if ( getSplitsCount() == NOF_SPLITS ) {
 			throw new IllegalStateException("This transaction already has a split");
 		}
 		
-		// splt.getActionStr() == null is *not* valid here
-		// (as opposed to KMyMoneySimpleTransactionImpl),
-		// but implicitly checked with the following:
-		if ( splt.getAction() != KMyMoneyTransactionSplit.Action.SPLIT_SHARES ) {
-			throw new IllegalArgumentException("the split's action is not " + KMyMoneyTransactionSplit.Action.SPLIT_SHARES);
-		}
-		
-		if ( splt.getAccount().getType() != KMyMoneyAccount.Type.STOCK ) {
-			throw new IllegalArgumentException("the split's account's type is not " + KMyMoneyAccount.Type.STOCK);
-		}
-		
-		if ( splt.getAccount().getQualifSecCurrID().getType() == KMMQualifSecCurrID.Type.CURRENCY ) {
-			throw new IllegalArgumentException("the split's account's commodity/currency is of type " + KMMQualifSecCurrID.Type.CURRENCY);
+		try {
+			validate();
+		} catch ( TransactionValidationException exc ) {
+			throw new IllegalArgumentException("argument <trx> does not meet the criteria for a simple transaction");
+		} catch ( Exception exc ) {
+			throw new IllegalArgumentException("argument <trx>: something went wrong");
 		}
 		
 		super.addSplit( splt );
 	}
 
+	// ---------------------------------------------------------------
+	
+	@Override
+	public void validate() throws Exception
+	{
+		if ( getSplitsCount() != NOF_SPLITS ) {
+			String msg = "Trx ID " + getID() + ": Number of splits is not " + NOF_SPLITS;
+			LOGGER.error("validate: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		// splt.getActionStr() == null is *not* valid here
+		// (as opposed to KMyMoneySimpleTransactionImpl),
+		// but implicitly checked with the following:
+		if ( getSplit().getAction() != KMyMoneyTransactionSplit.Action.SPLIT_SHARES ) {
+			throw new IllegalArgumentException("the split's action is not " + KMyMoneyTransactionSplit.Action.SPLIT_SHARES);
+		}
+		
+		if ( getSplit().getAccount().getType() != KMyMoneyAccount.Type.STOCK ) {
+			throw new IllegalArgumentException("the split's account's type is not " + KMyMoneyAccount.Type.STOCK);
+		}
+		
+		if ( getSplit().getAccount().getQualifSecCurrID().getType() == KMMQualifSecCurrID.Type.CURRENCY ) {
+			String msg = "Trx ID " + getID() + ": Security/currency of first split's account is of type '" + KMMQualifSecCurrID.Type.CURRENCY + "'";
+			LOGGER.error("validate: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		if ( getSplit().getSharesRat().doubleValue() == 0.0 ) {
+			String msg = "Trx ID " + getID() + ": Shares of the split is = 0";
+			LOGGER.error("validate: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		if ( getSplit().getValueRat().doubleValue() != 0.0 ) {
+			String msg = "Trx ID " + getID() + ": Value of the split is != 0";
+			LOGGER.error("validate: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+	}
+	
 	// ---------------------------------------------------------------
 	
     /**

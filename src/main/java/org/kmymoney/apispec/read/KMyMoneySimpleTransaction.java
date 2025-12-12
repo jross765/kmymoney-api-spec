@@ -5,7 +5,8 @@ import org.kmymoney.api.read.KMyMoneyTransactionSplit;
 
 import xyz.schnorxoborx.base.beanbase.TransactionSplitNotFoundException;
 
-public interface KMyMoneySimpleTransaction extends KMyMoneyTransaction
+public interface KMyMoneySimpleTransaction extends KMyMoneyTransaction,
+												   KMyMoneySpecialTransaction
 {
 
     /**

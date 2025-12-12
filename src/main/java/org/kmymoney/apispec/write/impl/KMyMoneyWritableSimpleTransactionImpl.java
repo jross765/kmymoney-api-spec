@@ -5,7 +5,9 @@ import org.kmymoney.api.read.impl.KMyMoneyTransactionImpl;
 import org.kmymoney.api.write.KMyMoneyWritableTransactionSplit;
 import org.kmymoney.api.write.impl.KMyMoneyWritableTransactionImpl;
 import org.kmymoney.apispec.read.impl.KMyMoneySimpleTransactionImpl;
+import org.kmymoney.apispec.read.impl.TransactionValidationException;
 import org.kmymoney.apispec.write.KMyMoneyWritableSimpleTransaction;
+import org.kmymoney.base.basetypes.complex.KMMQualifSecCurrID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,8 +21,11 @@ import xyz.schnorxoborx.base.beanbase.TransactionSplitNotFoundException;
 public class KMyMoneyWritableSimpleTransactionImpl extends KMyMoneyWritableTransactionImpl 
                                                    implements KMyMoneyWritableSimpleTransaction 
 {
-    @SuppressWarnings("unused")
 	private static final Logger LOGGER = LoggerFactory.getLogger(KMyMoneyWritableSimpleTransactionImpl.class);
+
+	// ---------------------------------------------------------------
+    
+    private static final int NOF_SPLITS = 2;
 
     // -----------------------------------------------------------
 
@@ -88,6 +93,75 @@ public class KMyMoneyWritableSimpleTransactionImpl extends KMyMoneyWritableTrans
 			throw new TransactionSplitNotFoundException();
 
 		return getSplits().get(1);
+	}
+
+    // ---------------------------------------------------------------
+    
+	@Override
+	public void validate() throws Exception
+	{
+		if ( getSplitsCount() != NOF_SPLITS ) {
+			String msg = "Trx ID " + getID() + ": Number of splits is not " + NOF_SPLITS;
+			LOGGER.error("validate: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		// ---
+		
+		if ( getFirstSplit().getAccount().getQualifSecCurrID().getType() != KMMQualifSecCurrID.Type.CURRENCY ) {
+			String msg = "Trx ID " + getID() + ": Security/currency of first split's account is not of type '" + KMMQualifSecCurrID.Type.CURRENCY + "'";
+			LOGGER.error("validate: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		if ( getSecondSplit().getAccount().getQualifSecCurrID().getType() != KMMQualifSecCurrID.Type.CURRENCY ) {
+			String msg = "Trx ID " + getID() + ": Security/currency of second split's account is not of type '" + KMMQualifSecCurrID.Type.CURRENCY + "'";
+			LOGGER.error("validate: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		if ( ! getFirstSplit().getAccount().getQualifSecCurrID().getCode().equals( getSecondSplit().getAccount().getQualifSecCurrID().getCode() ) ) {
+			String msg = "Trx ID " + getID() + ": Security/currency code of the two splits are not equal";
+			LOGGER.error("validate: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		// ---
+		
+		if ( getFirstSplit().getSharesRat().doubleValue() != getSecondSplit().getSharesRat().negate().doubleValue() ) {
+			String msg = "Trx ID " + getID() + ": Shares of first split is not equal to negative quantity of second split";
+			LOGGER.error("validate: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		if ( getFirstSplit().getValueRat().doubleValue() != getSecondSplit().getValueRat().negate().doubleValue() ) {
+			String msg = "Trx ID " + getID() + ": Value of first split is not equal to negative value of second split";
+			LOGGER.error("validate: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		// ---
+		
+		if ( getFirstSplit().getSharesRat().signum() != getFirstSplit().getValueRat().signum() ) {
+			String msg = "Trx ID " + getID() + ": Signum of first split's shares and value are not is not equal";
+			LOGGER.error("validate: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		if ( getSecondSplit().getSharesRat().signum() != getSecondSplit().getValueRat().signum() ) {
+			String msg = "Trx ID " + getID() + ": Signum of second split's shares and value are not is not equal";
+			LOGGER.error("validate: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		// ---
+		// redundant:
+		
+		if ( getBalance().doubleValue() != 0.0 ) {
+			String msg = "Trx ID :" + getID() + ": Transaction is not balanced: " + getBalance();
+			LOGGER.error("validate: " + msg);
+			throw new TransactionValidationException(msg);
+		}
 	}
 
     // ---------------------------------------------------------------
