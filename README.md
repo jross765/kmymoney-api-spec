@@ -22,6 +22,8 @@ Introduced:
 
 * `KMyMoneyStockBuyTransaction`
 
+* `KMyMoneyStockDividendTransaction`
+
 * `KMyMoneyStockSplitTransaction`
 
 ## Planned
@@ -30,7 +32,6 @@ Introduced:
 
   * Single transactions:
     * Stock/security sell transaction
-    * Dividend transaction
     * Foreign currency transaction
 
   * Multi-transactions:
