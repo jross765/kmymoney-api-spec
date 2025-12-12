@@ -3,10 +3,10 @@
 <KMYMONEY-FILE>
   <FILEINFO>
     <CREATION_DATE date="2023-10-14"/>
-    <LAST_MODIFIED_DATE date="2025-10-03T11:25:34+02:00"/>
+    <LAST_MODIFIED_DATE date="2025-12-12T09:48:29+01:00"/>
     <VERSION id="1"/>
     <FIXVERSION id="9"/>
-    <APPVERSION id="5.2.1-c9bd024"/>
+    <APPVERSION id="5.2.1-b5629b7"/>
   </FILEINFO>
   <USER name="John Doe" email="">
     <ADDRESS street="" city="" state="" zip="" telephone="" country="" county="" zipcode="" postcode=""/>
@@ -118,7 +118,7 @@
         <SUBACCOUNT id="A000066"/>
       </SUBACCOUNTS>
     </ACCOUNT>
-    <ACCOUNT id="A000004" parentaccount="A000002" lastreconciled="" lastmodified="2025-03-01" institution="I000001" opened="2023-01-01" number="" type="1" name="Giro RaiBa" description="Girokonto 1" currency="EUR">
+    <ACCOUNT id="A000004" parentaccount="A000002" lastreconciled="" lastmodified="2025-12-12" institution="I000001" opened="2023-01-01" number="" type="1" name="Giro RaiBa" description="Girokonto 1" currency="EUR">
       <KEYVALUEPAIRS>
         <PAIR key="lastNumberUsed" value="1"/>
       </KEYVALUEPAIRS>
@@ -171,7 +171,7 @@
     <ACCOUNT id="A000024" parentaccount="A000023" lastreconciled="" lastmodified="" institution="" opened="1900-01-01" number="" type="13" name="Einkommensteuer" description="" currency="EUR"/>
     <ACCOUNT id="A000025" parentaccount="A000023" lastreconciled="" lastmodified="" institution="" opened="1900-01-01" number="" type="13" name="Pflegeversicherung" description="" currency="EUR"/>
     <ACCOUNT id="A000026" parentaccount="A000023" lastreconciled="" lastmodified="" institution="" opened="1900-01-01" number="" type="13" name="Rentenversicherung" description="" currency="EUR"/>
-    <ACCOUNT id="A000027" parentaccount="A000023" lastreconciled="" lastmodified="" institution="" opened="1900-01-01" number="" type="13" name="Solidaritätszuschlag" description="" currency="EUR"/>
+    <ACCOUNT id="A000027" parentaccount="A000023" lastreconciled="" lastmodified="2025-12-12" institution="" opened="1900-01-01" number="" type="13" name="Solidaritätszuschlag" description="" currency="EUR"/>
     <ACCOUNT id="A000028" parentaccount="A000023" lastreconciled="" lastmodified="" institution="" opened="1900-01-01" number="" type="13" name="Sonstige" description="" currency="EUR"/>
     <ACCOUNT id="A000029" parentaccount="A000023" lastreconciled="" lastmodified="" institution="" opened="1900-01-01" number="" type="13" name="Sozialabgaben" description="" currency="EUR"/>
     <ACCOUNT id="A000030" parentaccount="AStd::Expense" lastreconciled="" lastmodified="" institution="" opened="1900-01-01" number="" type="13" name="Telekommunikation" description="" currency="EUR">
@@ -264,11 +264,11 @@
         <PAIR key="iban" value="DE01 1234 2345 3456 4567 99"/>
       </KEYVALUEPAIRS>
     </ACCOUNT>
-    <ACCOUNT id="A000063" parentaccount="A000062" lastreconciled="" lastmodified="2023-11-03" institution="" opened="2023-11-03" number="" type="15" name="DE0007164600 SAP" description="" currency="E000001"/>
+    <ACCOUNT id="A000063" parentaccount="A000062" lastreconciled="" lastmodified="2025-12-12" institution="" opened="2023-11-03" number="" type="15" name="DE0007164600 SAP" description="" currency="E000001"/>
     <ACCOUNT id="A000064" parentaccount="A000062" lastreconciled="" lastmodified="2024-06-01" institution="" opened="2023-10-27" number="" type="15" name="DE0007100000 Mercedes-Benz Group AG" description="" currency="E000002"/>
     <ACCOUNT id="A000065" parentaccount="A000003" lastreconciled="" lastmodified="2023-12-09" institution="" opened="2023-01-01" number="" type="3" name="Kasse Bodo" description="" currency="EUR"/>
     <ACCOUNT id="A000066" parentaccount="A000003" lastreconciled="" lastmodified="2023-12-09" institution="" opened="2023-01-01" number="" type="3" name="Kasse Ada" description="" currency="EUR"/>
-    <ACCOUNT id="A000067" parentaccount="A000023" lastreconciled="" lastmodified="" institution="" opened="1900-01-01" number="" type="13" name="Kapitalertrag" description="" currency="EUR"/>
+    <ACCOUNT id="A000067" parentaccount="A000023" lastreconciled="" lastmodified="2025-12-12" institution="" opened="1900-01-01" number="" type="13" name="Kapitalertrag" description="" currency="EUR"/>
     <ACCOUNT id="A000068" parentaccount="AStd::Income" lastreconciled="" lastmodified="" institution="" opened="1900-01-01" number="" type="12" name="Kapitalerträge" description="" currency="EUR">
       <SUBACCOUNTS>
         <SUBACCOUNT id="A000054"/>
@@ -281,7 +281,7 @@
         <SUBACCOUNT id="A000071"/>
       </SUBACCOUNTS>
     </ACCOUNT>
-    <ACCOUNT id="A000070" parentaccount="A000069" lastreconciled="" lastmodified="" institution="" opened="1900-01-01" number="" type="12" name="Inland" description="" currency="EUR"/>
+    <ACCOUNT id="A000070" parentaccount="A000069" lastreconciled="" lastmodified="2025-12-12" institution="" opened="1900-01-01" number="" type="12" name="Inland" description="" currency="EUR"/>
     <ACCOUNT id="A000071" parentaccount="A000069" lastreconciled="" lastmodified="" institution="" opened="1900-01-01" number="" type="12" name="Ausland" description="" currency="EUR"/>
     <ACCOUNT id="A000072" parentaccount="AStd::Expense" lastreconciled="" lastmodified="" institution="" opened="1900-01-01" number="" type="13" name="Bank" description="" currency="EUR">
       <SUBACCOUNTS>
@@ -409,6 +409,15 @@
         <SPLIT id="S0003" payee="" reconciledate="" action="Buy" reconcileflag="0" value="1800/1" shares="15/1" price="120/1" memo="" account="A000063" number="" bankid=""/>
       </SPLITS>
     </TRANSACTION>
+    <TRANSACTION id="T000000000000000020" postdate="2024-05-20" memo="" entrydate="2025-12-12" commodity="EUR">
+      <SPLITS>
+        <SPLIT id="S0001" payee="" reconciledate="" action="" reconcileflag="0" value="213/20" shares="213/20" price="0/1" memo="" account="A000004" number="" bankid=""/>
+        <SPLIT id="S0002" payee="" reconciledate="" action="Dividend" reconcileflag="0" value="0/1" shares="0/1" price="0/1" memo="" account="A000063" number="" bankid=""/>
+        <SPLIT id="S0003" payee="" reconciledate="" action="" reconcileflag="0" value="15/4" shares="15/4" price="1/1" memo="" account="A000067" number="" bankid=""/>
+        <SPLIT id="S0004" payee="" reconciledate="" action="" reconcileflag="0" value="3/5" shares="3/5" price="1/1" memo="" account="A000027" number="" bankid=""/>
+        <SPLIT id="S0005" payee="" reconciledate="" action="" reconcileflag="0" value="-15/1" shares="-15/1" price="1/1" memo="" account="A000070" number="" bankid=""/>
+      </SPLITS>
+    </TRANSACTION>
     <TRANSACTION id="T000000000000000019" postdate="2024-06-01" memo="" entrydate="2024-06-01" commodity="EUR">
       <SPLITS>
         <SPLIT id="S0001" payee="" reconciledate="" action="Split" reconcileflag="0" value="0/1" shares="2/1" price="1/1" memo="" account="A000064" number="" bankid=""/>
@@ -416,7 +425,7 @@
     </TRANSACTION>
   </TRANSACTIONS>
   <KEYVALUEPAIRS>
-    <PAIR key="LastModificationDate" value="2025-10-03T11:25:34+02:00"/>
+    <PAIR key="LastModificationDate" value="2025-12-12T09:48:29+01:00"/>
     <PAIR key="kmm-baseCurrency" value="EUR"/>
     <PAIR key="kmm-id" value="{1f7ec5d2-f982-48eb-9ae3-22095e2362ee}"/>
   </KEYVALUEPAIRS>
