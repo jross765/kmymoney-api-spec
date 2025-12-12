@@ -32,6 +32,7 @@ public class TestKMyMoneyStockBuyTransactionImpl {
 		junit.textui.TestRunner.run(suite());
 	}
 
+	@SuppressWarnings("exports")
 	public static junit.framework.Test suite() {
 		return new JUnit4TestAdapter(TestKMyMoneyStockBuyTransactionImpl.class);
 	}

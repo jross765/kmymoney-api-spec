@@ -60,7 +60,7 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyTransactionImpl
 		try {
 			validate();
 		} catch ( TransactionValidationException exc ) {
-			throw new IllegalArgumentException("argument <trx> does not meet the criteria for a simple transaction");
+			throw new IllegalArgumentException("argument <trx> does not meet the criteria for a stock-buy transaction");
 		} catch ( Exception exc ) {
 			throw new IllegalArgumentException("argument <trx>: something went wrong");
 		}
