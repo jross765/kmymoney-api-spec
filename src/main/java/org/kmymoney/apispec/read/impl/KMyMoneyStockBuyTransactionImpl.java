@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.kmymoney.api.read.KMyMoneyAccount;
+import org.kmymoney.api.read.KMyMoneySecurity;
 import org.kmymoney.api.read.KMyMoneyTransaction;
 import org.kmymoney.api.read.KMyMoneyTransactionSplit;
 import org.kmymoney.api.read.impl.KMyMoneyTransactionImpl;
@@ -108,7 +109,7 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyTransactionImpl
 			try {
 				validateStockAcctSplit(splt);
 			} catch ( TransactionValidationException exc ) {
-				throw new IllegalArgumentException("argument <trx> does not meet the criteria for a simple transaction");
+				throw new IllegalArgumentException("argument <trx> does not meet the criteria for a stock-buy transaction");
 			} catch ( Exception exc ) {
 				throw new IllegalArgumentException("argument <trx>: something went wrong");
 			}
@@ -116,7 +117,7 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyTransactionImpl
 			try {
 				validateTaxesFeesAcctSplit(splt);
 			} catch ( TransactionValidationException exc ) {
-				throw new IllegalArgumentException("argument <trx> does not meet the criteria for a simple transaction");
+				throw new IllegalArgumentException("argument <trx> does not meet the criteria for a stock-buy transaction");
 			} catch ( Exception exc ) {
 				throw new IllegalArgumentException("argument <trx>: something went wrong");
 			}
@@ -124,7 +125,7 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyTransactionImpl
 			try {
 				validateOffsettingAcctSplit(splt);
 			} catch ( TransactionValidationException exc ) {
-				throw new IllegalArgumentException("argument <trx> does not meet the criteria for a simple transaction");
+				throw new IllegalArgumentException("argument <trx> does not meet the criteria for a stock-buy transaction");
 			} catch ( Exception exc ) {
 				throw new IllegalArgumentException("argument <trx>: something went wrong");
 			}
@@ -410,6 +411,7 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyTransactionImpl
 	
 	// ---------------------------------------------------------------
 	
+	@Override
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("KMyMoneyStockBuyTransactionImpl [");
@@ -459,6 +461,78 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyTransactionImpl
 		}
 
 		buffer.append("]");
+
+		return buffer.toString();
+	}
+
+	public String toStringHuman() {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("Stock-buy transaction:\n");
+
+		buffer.append(" - ID: ");
+		buffer.append(getID() + "\n");
+
+		buffer.append(" - Splits:\n");
+		try
+		{
+			buffer.append("   o Stock acct split: ");
+			buffer.append("ID: " + getStockAccountSplit().getID() + ", ");
+			buffer.append("acct: " + getStockAccountSplit().getAccount().getQualifiedName() + ", ");
+			KMMQualifSecCurrID secID = getStockAccountSplit().getAccount().getQualifSecCurrID();
+			KMyMoneySecurity sec = getKMyMoneyFile().getSecurityByID(secID.getCode());
+			buffer.append("sec: '" + sec.getName() + "', ");
+			buffer.append("no. of shares: " + getStockAccountSplit().getSharesFormatted() + "\n");
+		}
+		catch ( TransactionSplitNotFoundException e )
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		try
+		{
+			for ( KMyMoneyTransactionSplit splt : getExpensesSplits() ) {
+				buffer.append("   o Expenses acct split: ");
+				buffer.append("ID: " + splt.getID() + ", ");
+				buffer.append("acct: " + splt.getAccount().getQualifiedName() + ", ");
+				buffer.append("amt: " + splt.getValueFormatted() + "\n");
+			}
+		}
+		catch ( TransactionSplitNotFoundException e )
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+				
+		try
+		{
+			buffer.append("   o Offsetting acct split: ");
+			buffer.append("ID: " + getOffsettingAccountSplit().getID() + ", ");
+			buffer.append("acct: " + getOffsettingAccountSplit().getAccount().getQualifiedName() + ", ");
+			buffer.append("amt: " + getOffsettingAccountSplit().getValueFormatted() + "\n");
+		}
+		catch ( TransactionSplitNotFoundException e )
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		buffer.append(" - Date posted: ");
+		try {
+			buffer.append(getDatePosted().format(DATE_POSTED_FORMAT) + "\n");
+		} catch (Exception e) {
+			buffer.append(getDatePosted().toString() + "\n");
+		}
+
+		buffer.append(" - Date entered: ");
+		try {
+			buffer.append(getDateEntered().format(DATE_ENTERED_FORMAT) + "\n");
+		} catch (Exception e) {
+			buffer.append(getDateEntered().toString() + "\n");
+		}
+
+		buffer.append(" - Memo: '");
+		buffer.append(getMemo() + "'\n");
 
 		return buffer.toString();
 	}

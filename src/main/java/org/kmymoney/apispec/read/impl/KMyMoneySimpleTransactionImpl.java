@@ -170,6 +170,7 @@ public class KMyMoneySimpleTransactionImpl extends KMyMoneyTransactionImpl
 
 	// ---------------------------------------------------------------
 	
+	@Override
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("KMyMoneySimpleTransactionImpl [");
