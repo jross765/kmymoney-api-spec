@@ -4,12 +4,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>org.gnucash</groupId>
-		<artifactId>gnucash</artifactId>
-		<version>1.9</version>
+		<groupId>org.kmymoney</groupId>
+		<artifactId>kmymoney</artifactId>
+		<version>0.10</version>
 	</parent>
 
-	<artifactId>gnucash-api-spec</artifactId>
+	<artifactId>kmymoney-api-spec</artifactId>
 	<name>${project.title} : API Specialized Entities</name>
 	<version>0.1</version>
 
@@ -35,17 +35,17 @@
 		<dependencies>
 
 			<dependency>
-				<groupId>org.gnucash</groupId>
-				<artifactId>gnucash-base</artifactId>
-				<version>1.7.1</version>
+				<groupId>org.kmymoney</groupId>
+				<artifactId>kmymoney-base</artifactId>
+				<version>0.8.1</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
 
 			<dependency>
-				<groupId>org.gnucash</groupId>
-				<artifactId>gnucash-api</artifactId>
-				<version>1.8</version>
+				<groupId>org.kmymoney</groupId>
+				<artifactId>kmymoney-api</artifactId>
+				<version>0.9</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -70,19 +70,19 @@
 
 		<!-- *********************************************************  -->
 
-		<!-- GnuCash Base -->
+		<!-- KMyMoney Base -->
 		<dependency>
-			<groupId>org.gnucash</groupId>
-			<artifactId>gnucash-base</artifactId>
-			<version>1.7.1</version>
+			<groupId>org.kmymoney</groupId>
+			<artifactId>kmymoney-base</artifactId>
+			<version>0.8.1</version>
 			<scope>compile</scope>
 		</dependency>
 
-		<!-- GnuCash API -->
+		<!-- KMyMoney API -->
 		<dependency>
-			<groupId>org.gnucash</groupId>
-			<artifactId>gnucash-api</artifactId>
-			<version>1.8</version>
+			<groupId>org.kmymoney</groupId>
+			<artifactId>kmymoney-api</artifactId>
+			<version>0.9</version>
 			<scope>compile</scope>
 		</dependency>
 
