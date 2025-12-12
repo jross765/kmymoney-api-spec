@@ -8,7 +8,7 @@ This module provides specialized entities (classes) that are based on more gener
 
 * This is a module-level repository which is part of a multi-module project, i.e. it has a parent and several siblings. 
 
-  [Parent](https://github.com/jross765/JGnuCashLibNTools.git)
+  [Parent](https://github.com/jross765/JKMyMoneyLibNTools.git)
 
 * Under normal circumstances, you cannot compile it on its own (at least not without further preparation), but instead, you should clone it together with the other repos and use the parent repo's build-script.
 
@@ -18,13 +18,29 @@ New.
 
 Introduced:
 
-* `GnuCashSimpleTransaction` (includes code that used to be in module "API" and which does not belong there).
+* `KMyMoneySimpleTransaction` (includes code that used to be in module "API" and which does not belong there)
 
-* `GnuCashStockSplitTransaction`.
+* `KMyMoneyStockBuyTransaction`
+
+* `KMyMoneyStockSplitTransaction`
 
 ## Planned
-(Nothing so far)
+
+* Other kinds of special transactions, e.g.:
+
+  * Single transactions:
+    * Stock/security sell transaction
+    * Dividend transaction
+    * Foreign currency transaction
+
+  * Multi-transactions:
+    * Move-stocks/securities transaction (from one securities account to another)
+    * Loan-related transactions
+    * Crypto-currency transaction (buy s.t. w/ crypto = spec. security)
 
 ## Known Issues
 (None)
+
+## Notes on Scope
+* This module only contains data object classes. The classes that *generate*/*handle* them are located in the module "API Extensions".
 
