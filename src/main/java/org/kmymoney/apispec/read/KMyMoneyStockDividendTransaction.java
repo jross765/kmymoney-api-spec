@@ -8,7 +8,7 @@ import org.kmymoney.api.read.KMyMoneyTransactionSplit;
 import xyz.schnorxoborx.base.beanbase.TransactionSplitNotFoundException;
 
 public interface KMyMoneyStockDividendTransaction extends KMyMoneyTransaction,
-												     KMyMoneySpecialTransaction
+												          KMyMoneySpecialTransaction
 {
 
     public KMyMoneyTransactionSplit       getStockAccountSplit()  throws TransactionSplitNotFoundException;
