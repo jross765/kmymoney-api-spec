@@ -1,9 +1,11 @@
 package org.kmymoney.apispec.read;
 
+import org.apache.commons.numbers.fraction.BigFraction;
 import org.kmymoney.api.read.KMyMoneyTransaction;
 import org.kmymoney.api.read.KMyMoneyTransactionSplit;
 
 import xyz.schnorxoborx.base.beanbase.TransactionSplitNotFoundException;
+import xyz.schnorxoborx.base.numbers.FixedPointNumber;
 
 public interface KMyMoneySimpleTransaction extends KMyMoneyTransaction,
 												   KMyMoneySpecialTransaction
@@ -23,7 +25,7 @@ public interface KMyMoneySimpleTransaction extends KMyMoneyTransaction,
      * @see #getSplits()
      * @see #getSplitsCount()
     */
-    public KMyMoneyTransactionSplit getFirstSplit()  throws TransactionSplitNotFoundException;
+    KMyMoneyTransactionSplit getFirstSplit()  throws TransactionSplitNotFoundException;
     
     /**
      * @return the second split of this transaction or null.
@@ -38,6 +40,11 @@ public interface KMyMoneySimpleTransaction extends KMyMoneyTransaction,
      * @see #getSplits()
      * @see #getSplitsCount()
      */
-	public KMyMoneyTransactionSplit getSecondSplit() throws TransactionSplitNotFoundException;
+	KMyMoneyTransactionSplit getSecondSplit() throws TransactionSplitNotFoundException;
 
+    // ---------------------------------------------------------------
+    
+    FixedPointNumber getAmount() throws TransactionSplitNotFoundException;
+    
+    BigFraction      getAmountRat() throws TransactionSplitNotFoundException;
 }
