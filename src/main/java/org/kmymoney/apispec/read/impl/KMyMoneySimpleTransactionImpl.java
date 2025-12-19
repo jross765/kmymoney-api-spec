@@ -1,5 +1,6 @@
 package org.kmymoney.apispec.read.impl;
 
+import org.apache.commons.numbers.fraction.BigFraction;
 import org.kmymoney.api.read.KMyMoneyAccount;
 import org.kmymoney.api.read.KMyMoneyTransaction;
 import org.kmymoney.api.read.KMyMoneyTransactionSplit;
@@ -11,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import xyz.schnorxoborx.base.beanbase.TransactionSplitNotFoundException;
+import xyz.schnorxoborx.base.numbers.FixedPointNumber;
 
 /**
  * xyz
@@ -168,6 +170,16 @@ public class KMyMoneySimpleTransactionImpl extends KMyMoneyTransactionImpl
 		return getSplits().get(1);
     }
 
+    // ---------------------------------------------------------------
+    
+    public FixedPointNumber getAmount() throws TransactionSplitNotFoundException {
+    	return getSecondSplit().getValue();
+    }
+    
+    public BigFraction getAmountRat() throws TransactionSplitNotFoundException {
+    	return getSecondSplit().getValueRat();
+    }
+    
 	// ---------------------------------------------------------------
 	
 	@Override
@@ -198,6 +210,13 @@ public class KMyMoneySimpleTransactionImpl extends KMyMoneyTransactionImpl
 			buffer.append("ERROR");
 		}
 
+		buffer.append(", amount=");
+		try {
+			buffer.append(getAmount());
+		} catch (Exception e) {
+			buffer.append("ERROR");
+		}
+
 		buffer.append(", date-posted=");
 		try {
 			buffer.append(getDatePosted().format(DATE_POSTED_FORMAT));
@@ -216,5 +235,5 @@ public class KMyMoneySimpleTransactionImpl extends KMyMoneyTransactionImpl
 
 		return buffer.toString();
 	}
-	
+
 }

@@ -1,5 +1,6 @@
 package org.kmymoney.apispec.read.impl;
 
+import org.apache.commons.numbers.fraction.BigFraction;
 import org.kmymoney.api.read.KMyMoneyAccount;
 import org.kmymoney.api.read.KMyMoneyTransaction;
 import org.kmymoney.api.read.KMyMoneyTransactionSplit;
@@ -11,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import xyz.schnorxoborx.base.beanbase.TransactionSplitNotFoundException;
+import xyz.schnorxoborx.base.numbers.FixedPointNumber;
 
 /**
  * xyz
@@ -113,6 +115,69 @@ public class KMyMoneyStockSplitTransactionImpl extends KMyMoneyTransactionImpl
 	// ---------------------------------------------------------------
 	
 	@Override
+	public FixedPointNumber getSplitFactor() throws TransactionSplitNotFoundException {
+		return getSplit().getShares();
+	}
+
+	@Override
+	public BigFraction getSplitFactorRat() throws TransactionSplitNotFoundException {
+		return getSplit().getSharesRat();
+	}
+
+	@Override
+	public FixedPointNumber getNofAddShares() throws TransactionSplitNotFoundException {
+		return getNofSharesAfterSplit().subtract( getNofSharesBeforeSplit() );
+	}
+
+	@Override
+	public BigFraction getNofAddSharesRat() throws TransactionSplitNotFoundException {
+		return getNofSharesAfterSplitRat().subtract( getNofSharesBeforeSplitRat() );
+	}
+	
+	@Override
+	public FixedPointNumber getNofSharesBeforeSplit() throws TransactionSplitNotFoundException {
+		KMyMoneyAccount acct = getSplit().getAccount();
+		return acct.getBalance(getPreviousSplit());
+	}
+
+	@Override
+	public BigFraction getNofSharesBeforeSplitRat() throws TransactionSplitNotFoundException {
+		KMyMoneyAccount acct = getSplit().getAccount();
+		return acct.getBalanceRat(getPreviousSplit());
+	}
+
+	@Override
+	public FixedPointNumber getNofSharesAfterSplit() throws TransactionSplitNotFoundException {
+		KMyMoneyAccount acct = getSplit().getAccount();
+		return acct.getBalance(getSplit());
+	}
+	
+	@Override
+	public BigFraction getNofSharesAfterSplitRat() throws TransactionSplitNotFoundException {
+		KMyMoneyAccount acct = getSplit().getAccount();
+		return acct.getBalanceRat(getSplit());
+	}
+	
+	// ----------------------------
+	
+	public KMyMoneyTransactionSplit getPreviousSplit() throws TransactionSplitNotFoundException {
+		KMyMoneyAccount acct = getSplit().getAccount();
+		
+		KMyMoneyTransactionSplit prevSplt = null;
+		for ( KMyMoneyTransactionSplit splt : acct.getTransactionSplits() ) {
+			if ( splt.getID().equals( getSplit().getID() )) {
+				return prevSplt;
+			}
+			
+			prevSplt = splt;
+		}
+		
+		return null;
+	}
+
+	// ---------------------------------------------------------------
+	
+	@Override
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("KMyMoneyStockSplitTransactionImpl [");
@@ -151,5 +216,5 @@ public class KMyMoneyStockSplitTransactionImpl extends KMyMoneyTransactionImpl
 
 		return buffer.toString();
 	}
-	
+
 }

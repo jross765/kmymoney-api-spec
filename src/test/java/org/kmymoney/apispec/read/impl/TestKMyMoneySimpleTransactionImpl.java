@@ -3,7 +3,8 @@ package org.kmymoney.apispec.read.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-import java.io.InputStream;
+import java.io.File;
+import java.net.URL;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -42,16 +43,18 @@ public class TestKMyMoneySimpleTransactionImpl {
 		ClassLoader classLoader = getClass().getClassLoader();
 		// URL kmmFileURL = classLoader.getResource(Const.KMM_FILENAME);
 		// System.err.println("KMyMoney test file resource: '" + kmmFileURL + "'");
-		InputStream kmmFileStream = null;
+		URL kmmFileURL = null;
+		File kmmFileRaw = null;
 		try {
-			kmmFileStream = classLoader.getResourceAsStream(ConstTest.KMM_FILENAME);
+			kmmFileURL = classLoader.getResource(ConstTest.KMM_FILENAME);
+			kmmFileRaw = new File(kmmFileURL.getFile());
 		} catch (Exception exc) {
 			System.err.println("Cannot generate input stream from resource");
 			return;
 		}
 
 		try {
-			kmmFile = new KMyMoneyFileImpl(kmmFileStream);
+			kmmFile = new KMyMoneyFileImpl(kmmFileRaw);
 		} catch (Exception exc) {
 			System.err.println("Cannot parse KMyMoney file");
 			exc.printStackTrace();
@@ -86,6 +89,8 @@ public class TestKMyMoneySimpleTransactionImpl {
 		KMyMoneySimpleTransaction specTrx = new KMyMoneySimpleTransactionImpl((KMyMoneyTransactionImpl) genTrx);
 		assertNotEquals(null, specTrx);
 		
+		// ---
+		
 		assertEquals(2, specTrx.getSplitsCount());
 		
 		assertEquals("S0001", specTrx.getFirstSplit().getID().toString());
@@ -93,6 +98,12 @@ public class TestKMyMoneySimpleTransactionImpl {
 		
 		assertEquals(specTrx.getSplits().get(0).getID().toString(), specTrx.getFirstSplit().getID().toString());
 		assertEquals(specTrx.getSplits().get(1).getID().toString(), specTrx.getSecondSplit().getID().toString());
+		
+		// ---
+		
+		assertEquals(-10000.0, specTrx.getAmount().doubleValue(), ConstTest.DIFF_TOLERANCE);
+		
+		// ---
 		
 		try {
 			specTrx.validate();

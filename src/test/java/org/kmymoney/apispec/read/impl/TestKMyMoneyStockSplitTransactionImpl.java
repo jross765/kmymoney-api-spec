@@ -3,8 +3,10 @@ package org.kmymoney.apispec.read.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-import java.io.InputStream;
+import java.io.File;
+import java.net.URL;
 
+import org.apache.commons.numbers.fraction.BigFraction;
 import org.junit.Before;
 import org.junit.Test;
 import org.kmymoney.api.read.KMyMoneyFile;
@@ -42,16 +44,18 @@ public class TestKMyMoneyStockSplitTransactionImpl {
 		ClassLoader classLoader = getClass().getClassLoader();
 		// URL kmmFileURL = classLoader.getResource(Const.KMM_FILENAME);
 		// System.err.println("KMyMoney test file resource: '" + kmmFileURL + "'");
-		InputStream kmmFileStream = null;
+		URL kmmFileURL = null;
+		File kmmFileRaw = null;
 		try {
-			kmmFileStream = classLoader.getResourceAsStream(ConstTest.KMM_FILENAME);
+			kmmFileURL = classLoader.getResource(ConstTest.KMM_FILENAME);
+			kmmFileRaw = new File(kmmFileURL.getFile());
 		} catch (Exception exc) {
 			System.err.println("Cannot generate input stream from resource");
 			return;
 		}
 
 		try {
-			kmmFile = new KMyMoneyFileImpl(kmmFileStream);
+			kmmFile = new KMyMoneyFileImpl(kmmFileRaw);
 		} catch (Exception exc) {
 			System.err.println("Cannot parse KMyMoney file");
 			exc.printStackTrace();
@@ -86,11 +90,32 @@ public class TestKMyMoneyStockSplitTransactionImpl {
 		KMyMoneyStockSplitTransaction specTrx = new KMyMoneyStockSplitTransactionImpl((KMyMoneyTransactionImpl) genTrx);
 		assertNotEquals(null, specTrx);
 		
+		// ---
+		
 		assertEquals(1, specTrx.getSplitsCount());
 		
 		assertEquals("S0001", specTrx.getSplit().getID().toString());
 		
 		assertEquals(specTrx.getSplits().get(0).toString(), specTrx.getSplit().toString());
+		
+		// ---
+		
+		assertEquals(17.0, specTrx.getNofAddShares().doubleValue(), ConstTest.DIFF_TOLERANCE);
+		assertEquals(2.0,  specTrx.getSplitFactor().doubleValue(), ConstTest.DIFF_TOLERANCE);
+		assertEquals(17.0, specTrx.getNofSharesBeforeSplit().doubleValue(), ConstTest.DIFF_TOLERANCE);
+		assertEquals(34.0, specTrx.getNofSharesAfterSplit().doubleValue(), ConstTest.DIFF_TOLERANCE);
+		
+		assertEquals(BigFraction.of(17, 1), specTrx.getNofAddSharesRat());
+		assertEquals(BigFraction.of(2, 1),  specTrx.getSplitFactorRat());
+		assertEquals(BigFraction.of(17, 1), specTrx.getNofSharesBeforeSplitRat());
+		assertEquals(BigFraction.of(34, 1), specTrx.getNofSharesAfterSplitRat());
+		
+		assertEquals(specTrx.getNofAddSharesRat().doubleValue(),         specTrx.getNofAddShares().doubleValue(), ConstTest.DIFF_TOLERANCE);
+		assertEquals(specTrx.getSplitFactorRat().doubleValue(),          specTrx.getSplitFactor().doubleValue(), ConstTest.DIFF_TOLERANCE);
+		assertEquals(specTrx.getNofSharesBeforeSplitRat().doubleValue(), specTrx.getNofSharesBeforeSplit().doubleValue(), ConstTest.DIFF_TOLERANCE);
+		assertEquals(specTrx.getNofSharesAfterSplitRat().doubleValue(),  specTrx.getNofSharesAfterSplit().doubleValue(), ConstTest.DIFF_TOLERANCE);
+		
+		// ---
 		
 		try {
 			specTrx.validate();

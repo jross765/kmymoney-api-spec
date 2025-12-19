@@ -3,8 +3,10 @@ package org.kmymoney.apispec.read.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-import java.io.InputStream;
+import java.io.File;
+import java.net.URL;
 
+import org.apache.commons.numbers.fraction.BigFraction;
 import org.junit.Before;
 import org.junit.Test;
 import org.kmymoney.api.read.KMyMoneyFile;
@@ -42,16 +44,18 @@ public class TestKMyMoneyStockBuyTransactionImpl {
 		ClassLoader classLoader = getClass().getClassLoader();
 		// URL kmmFileURL = classLoader.getResource(Const.KMM_FILENAME);
 		// System.err.println("KMyMoney test file resource: '" + kmmFileURL + "'");
-		InputStream kmmFileStream = null;
+		URL kmmFileURL = null;
+		File kmmFileRaw = null;
 		try {
-			kmmFileStream = classLoader.getResourceAsStream(ConstTest.KMM_FILENAME);
+			kmmFileURL = classLoader.getResource(ConstTest.KMM_FILENAME);
+			kmmFileRaw = new File(kmmFileURL.getFile());
 		} catch (Exception exc) {
 			System.err.println("Cannot generate input stream from resource");
 			return;
 		}
 
 		try {
-			kmmFile = new KMyMoneyFileImpl(kmmFileStream);
+			kmmFile = new KMyMoneyFileImpl(kmmFileRaw);
 		} catch (Exception exc) {
 			System.err.println("Cannot parse KMyMoney file");
 			exc.printStackTrace();
@@ -96,6 +100,28 @@ public class TestKMyMoneyStockBuyTransactionImpl {
 		assertEquals(specTrx.getSplits().get(0).toString(), specTrx.getOffsettingAccountSplit().toString());
 		assertEquals(specTrx.getSplits().get(1).toString(), specTrx.getExpensesSplits().get(0).toString());
 		assertEquals(specTrx.getSplits().get(2).toString(), specTrx.getStockAccountSplit().toString());
+		
+		// ---
+		
+		assertEquals(15.0,    specTrx.getNofShares().doubleValue(), ConstTest.DIFF_TOLERANCE);
+		assertEquals(120.0,   specTrx.getPricePerShare().doubleValue(), ConstTest.DIFF_TOLERANCE);
+		assertEquals(1800.0,  specTrx.getNetPrice().doubleValue(), ConstTest.DIFF_TOLERANCE);
+		assertEquals(10.0,    specTrx.getFeesTaxes().doubleValue(), ConstTest.DIFF_TOLERANCE);
+		assertEquals(1810.00, specTrx.getGrossPrice().doubleValue(), ConstTest.DIFF_TOLERANCE);
+		
+		assertEquals(BigFraction.of(15, 1),     specTrx.getNofSharesRat());
+		assertEquals(BigFraction.of(120, 1),    specTrx.getPricePerShareRat());
+		assertEquals(BigFraction.of(1800, 1),   specTrx.getNetPriceRat());
+		assertEquals(BigFraction.of(10, 1),     specTrx.getFeesTaxesRat());
+		assertEquals(BigFraction.of(1810, 1),   specTrx.getGrossPriceRat());
+		
+		assertEquals(specTrx.getNofSharesRat().doubleValue(),     specTrx.getNofShares().doubleValue(), ConstTest.DIFF_TOLERANCE);
+		assertEquals(specTrx.getPricePerShareRat().doubleValue(), specTrx.getPricePerShare().doubleValue(), ConstTest.DIFF_TOLERANCE);
+		assertEquals(specTrx.getNetPriceRat().doubleValue(),      specTrx.getNetPrice().doubleValue(), ConstTest.DIFF_TOLERANCE);
+		assertEquals(specTrx.getFeesTaxesRat().doubleValue(),     specTrx.getFeesTaxes().doubleValue(), ConstTest.DIFF_TOLERANCE);
+		assertEquals(specTrx.getGrossPriceRat().doubleValue(),    specTrx.getGrossPrice().doubleValue(), ConstTest.DIFF_TOLERANCE);
+		
+		// ---
 		
 		try {
 			specTrx.validate();

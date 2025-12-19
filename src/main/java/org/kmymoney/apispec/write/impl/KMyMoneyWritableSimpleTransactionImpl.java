@@ -1,5 +1,6 @@
 package org.kmymoney.apispec.write.impl;
 
+import org.apache.commons.numbers.fraction.BigFraction;
 import org.kmymoney.api.read.KMyMoneyTransactionSplit;
 import org.kmymoney.api.read.impl.KMyMoneyTransactionImpl;
 import org.kmymoney.api.write.KMyMoneyWritableTransactionSplit;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import xyz.schnorxoborx.base.beanbase.TransactionSplitNotFoundException;
+import xyz.schnorxoborx.base.numbers.FixedPointNumber;
 
 /**
  * xyz.
@@ -94,6 +96,56 @@ public class KMyMoneyWritableSimpleTransactionImpl extends KMyMoneyWritableTrans
 
 		return getSplits().get(1);
 	}
+
+    // ----------------------------
+    
+    /**
+     * {@inheritDoc}
+     */
+	@Override
+	public FixedPointNumber getAmount() throws TransactionSplitNotFoundException
+	{
+    	return getSecondSplit().getValue();
+	}
+
+    /**
+     * {@inheritDoc}
+     */
+	@Override
+	public BigFraction getAmountRat() throws TransactionSplitNotFoundException
+	{
+    	return getSecondSplit().getValueRat();
+	}
+
+    // ---------------------------------------------------------------
+    
+    /**
+     * {@inheritDoc}
+     */
+	@Override
+    public void setAmount(FixedPointNumber amt) throws TransactionSplitNotFoundException {
+		FixedPointNumber amtNeg = amt.copy().negate(); // Caution: FixedPointNumber is mutable!
+		
+    	getWritableFirstSplit().setShares(amtNeg);
+    	getWritableFirstSplit().setValue(amtNeg);
+		
+    	getWritableSecondSplit().setShares(amt);
+    	getWritableSecondSplit().setValue(amt);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+	@Override
+    public void setAmount(BigFraction amt) throws TransactionSplitNotFoundException {
+		BigFraction amtNeg = amt.negate();
+		
+    	getWritableFirstSplit().setShares(amtNeg);
+    	getWritableFirstSplit().setValue(amtNeg);
+		
+    	getWritableSecondSplit().setShares(amt);
+    	getWritableSecondSplit().setValue(amt);
+    }
 
     // ---------------------------------------------------------------
     
@@ -190,6 +242,13 @@ public class KMyMoneyWritableSimpleTransactionImpl extends KMyMoneyWritableTrans
 		buffer.append(", split2=");
 		try {
 			buffer.append(getSecondSplit().getID());
+		} catch (Exception e) {
+			buffer.append("ERROR");
+		}
+
+		buffer.append(", amount=");
+		try {
+			buffer.append(getAmount());
 		} catch (Exception e) {
 			buffer.append("ERROR");
 		}

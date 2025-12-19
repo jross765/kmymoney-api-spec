@@ -3,6 +3,7 @@ package org.kmymoney.apispec.read.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.numbers.fraction.BigFraction;
 import org.kmymoney.api.read.KMyMoneyAccount;
 import org.kmymoney.api.read.KMyMoneySecurity;
 import org.kmymoney.api.read.KMyMoneyTransaction;
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import xyz.schnorxoborx.base.beanbase.TransactionSplitNotFoundException;
+import xyz.schnorxoborx.base.numbers.FixedPointNumber;
 
 /**
  * xyz
@@ -480,6 +482,82 @@ public class KMyMoneyStockDividendTransactionImpl extends KMyMoneyTransactionImp
 		return null;
 	}
 	
+	// ---------------------------------------------------------------
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public FixedPointNumber getGrossDividend() throws TransactionSplitNotFoundException
+	{
+		return getIncomeAccountSplit().getValue().negate();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public BigFraction getGrossDividendRat() throws TransactionSplitNotFoundException
+	{
+		return getIncomeAccountSplit().getValueRat().negate();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public FixedPointNumber getFeesTaxes() throws TransactionSplitNotFoundException
+	{
+		FixedPointNumber result = FixedPointNumber.ZERO.copy(); // Caution: FPN is mutable!
+		
+		for ( KMyMoneyTransactionSplit splt : getExpensesSplits() ) {
+			result.add( splt.getValue() ); // mutable
+		}
+		
+		return result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public BigFraction getFeesTaxesRat() throws TransactionSplitNotFoundException
+	{
+		BigFraction result = BigFraction.ZERO; // Caution: BF is immutable
+		
+		for ( KMyMoneyTransactionSplit splt : getExpensesSplits() ) {
+			result = result.add( splt.getValueRat() ); // immutable
+		}
+		
+		return result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public FixedPointNumber getNetDividend() throws TransactionSplitNotFoundException
+	{
+		FixedPointNumber result = getGrossDividend();
+		
+		result.subtract( getFeesTaxes() ); // mutable
+		
+		return result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public BigFraction getNetDividendRat() throws TransactionSplitNotFoundException
+	{
+		BigFraction result = getGrossDividendRat();
+		
+		result = result.subtract( getFeesTaxesRat() ); // immutable
+		
+		return result;
+	}
+
 	// ---------------------------------------------------------------
 	
 	@Override
