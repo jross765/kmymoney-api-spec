@@ -153,8 +153,8 @@ public class KMyMoneySimpleTransactionImpl extends KMyMoneyTransactionImpl
      */
 	@Override
     public KMyMoneyTransactionSplit getFirstSplit() throws TransactionSplitNotFoundException {
-    	if ( getSplits().size() == 0 )
-    		throw new TransactionSplitNotFoundException();
+		if ( getSplitsCount() <= 0 )
+			throw new TransactionSplitNotFoundException();
 	
     	return getSplits().get(0);
     }
@@ -164,7 +164,7 @@ public class KMyMoneySimpleTransactionImpl extends KMyMoneyTransactionImpl
      */
 	@Override
     public KMyMoneyTransactionSplit getSecondSplit() throws TransactionSplitNotFoundException {
-		if ( getSplits().size() <= 1 )
+		if ( getSplitsCount() <= 1 )
 			throw new TransactionSplitNotFoundException();
 
 		return getSplits().get(1);

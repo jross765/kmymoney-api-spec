@@ -42,7 +42,7 @@ public class KMyMoneyStockDividendTransactionImpl extends KMyMoneyTransactionImp
     private static final int NOF_SPLITS_INCOME = 1;
     
     private static final int NOF_SPLITS_FEES_TAXES_MIN = 0;
-    private static final int NOF_SPLITS_FEES_TAXES_MAX = 4; // more is unplausible
+    private static final int NOF_SPLITS_FEES_TAXES_MAX = 4; // more is implausible
 
     private static final int NOF_SPLITS_OFFSETTING = 1;
     
@@ -426,6 +426,9 @@ public class KMyMoneyStockDividendTransactionImpl extends KMyMoneyTransactionImp
 	@Override
 	public KMyMoneyTransactionSplit getStockAccountSplit() throws TransactionSplitNotFoundException
 	{
+    	if ( getSplitsCount() == 0 )
+    		throw new TransactionSplitNotFoundException();
+	
 		for ( KMyMoneyTransactionSplit splt : getSplits() ) {
 			if ( splt.getAccount().getType() == KMyMoneyAccount.Type.STOCK ) {
 				return splt;
@@ -441,6 +444,9 @@ public class KMyMoneyStockDividendTransactionImpl extends KMyMoneyTransactionImp
 	@Override
 	public KMyMoneyTransactionSplit getIncomeAccountSplit() throws TransactionSplitNotFoundException
 	{
+    	if ( getSplitsCount() == 0 )
+    		throw new TransactionSplitNotFoundException();
+	
 		for ( KMyMoneyTransactionSplit splt : getSplits() ) {
 			if ( splt.getAccount().getType() == KMyMoneyAccount.Type.INCOME ) {
 				return splt;
@@ -456,6 +462,9 @@ public class KMyMoneyStockDividendTransactionImpl extends KMyMoneyTransactionImp
 	@Override
 	public List<KMyMoneyTransactionSplit> getExpensesSplits() throws TransactionSplitNotFoundException
 	{
+    	if ( getSplitsCount() == 0 )
+    		throw new TransactionSplitNotFoundException();
+	
 		List<KMyMoneyTransactionSplit> result = new ArrayList<KMyMoneyTransactionSplit>();
 		
 		for ( KMyMoneyTransactionSplit splt : getSplits() ) {
@@ -473,6 +482,9 @@ public class KMyMoneyStockDividendTransactionImpl extends KMyMoneyTransactionImp
 	@Override
 	public KMyMoneyTransactionSplit getOffsettingAccountSplit() throws TransactionSplitNotFoundException
 	{
+    	if ( getSplitsCount() == 0 )
+    		throw new TransactionSplitNotFoundException();
+	
 		for ( KMyMoneyTransactionSplit splt : getSplits() ) {
 			if ( splt.getAccount().getType() == KMyMoneyAccount.Type.CHECKING ) {
 				return splt;
