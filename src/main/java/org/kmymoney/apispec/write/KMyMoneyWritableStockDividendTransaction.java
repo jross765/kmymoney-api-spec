@@ -30,16 +30,16 @@ public interface KMyMoneyWritableStockDividendTransaction extends KMyMoneyWritab
     
     // ---------------------------------------------------------------
     
-    void setGrossDividend(FixedPointNumber val)  throws TransactionSplitNotFoundException;
+//    void setGrossDividend(FixedPointNumber amt)  throws TransactionSplitNotFoundException;
+//    
+//    void setGrossDividend(BigFraction amt)  throws TransactionSplitNotFoundException;
+//    
+//    void setFeesTaxes(FixedPointNumber amt)  throws TransactionSplitNotFoundException;
+//    
+//    void setFeesTaxes(BigFraction amt)  throws TransactionSplitNotFoundException;
     
-    void setGrossDividend(BigFraction val)  throws TransactionSplitNotFoundException;
+    void setNetDividend(FixedPointNumber amt)  throws TransactionSplitNotFoundException;
     
-    void setFeesTaxes(FixedPointNumber val)  throws TransactionSplitNotFoundException;
-    
-    void setFeesTaxes(BigFraction val)  throws TransactionSplitNotFoundException;
-    
-    void setNetDividend(FixedPointNumber val)  throws TransactionSplitNotFoundException;
-    
-    void setNetDividend(BigFraction val)  throws TransactionSplitNotFoundException;
+    void setNetDividend(BigFraction amt)  throws TransactionSplitNotFoundException;
     
 }

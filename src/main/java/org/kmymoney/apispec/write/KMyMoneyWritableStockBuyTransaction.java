@@ -32,20 +32,20 @@ public interface KMyMoneyWritableStockBuyTransaction extends KMyMoneyWritableTra
     
     void setNofShares(BigFraction val)  throws TransactionSplitNotFoundException;
     
-    void setPricePerShare(FixedPointNumber val)  throws TransactionSplitNotFoundException;
+    void setPricePerShare(FixedPointNumber amt)  throws TransactionSplitNotFoundException;
     
-    void setPricePerShare(BigFraction val)  throws TransactionSplitNotFoundException;
+    void setPricePerShare(BigFraction amt)  throws TransactionSplitNotFoundException;
     
-    void setNetPrice(FixedPointNumber val)  throws TransactionSplitNotFoundException;
+//    void setNetPrice(FixedPointNumber amt)  throws TransactionSplitNotFoundException;
+//    
+//    void setNetPrice(BigFraction amt)  throws TransactionSplitNotFoundException;
+//    
+//    void setFeesTaxes(FixedPointNumber amt)  throws TransactionSplitNotFoundException;
+//    
+//    void setFeesTaxes(BigFraction amt)  throws TransactionSplitNotFoundException;
     
-    void setNetPrice(BigFraction val)  throws TransactionSplitNotFoundException;
+    void setGrossPrice(FixedPointNumber amt)  throws TransactionSplitNotFoundException;
     
-    void setFeesTaxes(FixedPointNumber val)  throws TransactionSplitNotFoundException;
-    
-    void setFeesTaxes(BigFraction val)  throws TransactionSplitNotFoundException;
-    
-    void setGrossPrice(FixedPointNumber val)  throws TransactionSplitNotFoundException;
-    
-    void setGrossPrice(BigFraction val)  throws TransactionSplitNotFoundException;
+    void setGrossPrice(BigFraction amt)  throws TransactionSplitNotFoundException;
     
 }
