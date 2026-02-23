@@ -10,7 +10,10 @@ import org.kmymoney.api.write.KMyMoneyWritableTransactionSplit;
 import org.kmymoney.api.write.impl.KMyMoneyWritableTransactionImpl;
 import org.kmymoney.apispec.read.impl.KMyMoneySimpleTransactionImpl;
 import org.kmymoney.apispec.read.impl.KMyMoneyStockBuyTransactionImpl;
+import org.kmymoney.apispec.read.impl.KMyMoneyStockBuyTransactionImpl.SplitAccountType;
+import org.kmymoney.apispec.read.impl.TransactionValidationException;
 import org.kmymoney.apispec.write.KMyMoneyWritableStockBuyTransaction;
+import org.kmymoney.base.basetypes.complex.KMMQualifSecCurrID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +45,10 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
     private static final int NOF_SPLITS_MAX = NOF_SPLITS_STOCK + NOF_SPLITS_FEES_TAXES_MAX + NOF_SPLITS_OFFSETTING;
 
 	// ---------------------------------------------------------------
+    
+    private int[] splitCounter;
+
+	// ---------------------------------------------------------------
 
     /**
      * Create a new Transaction and add it to the file.
@@ -50,6 +57,16 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
      */
     public KMyMoneyWritableStockBuyTransactionImpl(final KMyMoneyStockBuyTransactionImpl trx) {
     	super(trx);
+    	
+    	init();
+    	
+		try {
+			validate();
+		} catch ( TransactionValidationException exc ) {
+			throw new IllegalArgumentException("argument <trx> does not meet the criteria for a stock-buy transaction");
+		} catch ( Exception exc ) {
+			throw new IllegalArgumentException("argument <trx>: something went wrong");
+		}
     }
 
     /**
@@ -59,9 +76,48 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
      */
     public KMyMoneyWritableStockBuyTransactionImpl(final KMyMoneyWritableStockBuyTransaction trx) {
     	super(trx);
+    	
+    	init();
+    	
+		try {
+			validate();
+		} catch ( TransactionValidationException exc ) {
+			throw new IllegalArgumentException("argument <trx> does not meet the criteria for a stock-buy transaction");
+		} catch ( Exception exc ) {
+			throw new IllegalArgumentException("argument <trx>: something went wrong");
+		}
     }
 
     // ---------------------------------------------------------------
+    
+    // ::TODO: Redundant to GnuCashStockBuyTransactionImpl.init()
+    protected void init() {
+	    splitCounter = new int[SplitAccountType.values().length];
+	    
+	    for ( SplitAccountType type : SplitAccountType.values() ) {
+	    	splitCounter[type.ordinal()] = 0;
+	    }
+	    
+	    try
+		{
+			if ( getStockAccountSplit() != null ) {
+				splitCounter[SplitAccountType.STOCK.ordinal()] = 1;
+			}
+			
+		    if ( getExpensesSplits().size() != 0 ) {
+		    	splitCounter[SplitAccountType.TAXES_FEES.ordinal()] = getExpensesSplits().size();
+		    }
+
+		    if ( getOffsettingAccountSplit() != null ) {
+		    	splitCounter[SplitAccountType.OFFSETTING.ordinal()] = 1;
+		    }
+		}
+		catch ( TransactionSplitNotFoundException e )
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
     
 	@Override
 	public KMyMoneyWritableTransactionSplit getWritableStockAccountSplit() throws TransactionSplitNotFoundException {
@@ -315,14 +371,190 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 		getWritableOffsettingAccountSplit().setValue(amtNeg);
 	}
 
-    // ---------------------------------------------------------------
-    
+	// ---------------------------------------------------------------
+	
 	@Override
-	public void validate() throws Exception {
-		// ::TODO
-	}
+	public void validate() throws Exception
+	{
+		if ( getSplitsCount() < NOF_SPLITS_MIN ) {
+			String msg = "Trx ID " + getID() + ": Number of splits (altogether) is < " + NOF_SPLITS_MIN;
+			LOGGER.error("validate: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		if ( getSplitsCount() > NOF_SPLITS_MAX ) {
+			String msg = "Trx ID " + getID() + ": Number of splits (altogether) is > " + NOF_SPLITS_MAX;
+			LOGGER.error("validate: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		if ( splitCounter[SplitAccountType.STOCK.ordinal()] != NOF_SPLITS_STOCK ) {
+			String msg = "Trx ID " + getID() + ": Number of splits to stock account is not " + NOF_SPLITS_STOCK;
+			LOGGER.error("validate: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		if ( splitCounter[SplitAccountType.TAXES_FEES.ordinal()] < NOF_SPLITS_FEES_TAXES_MIN || 
+			 splitCounter[SplitAccountType.TAXES_FEES.ordinal()] > NOF_SPLITS_FEES_TAXES_MAX ) {
+			String msg = "Trx ID " + getID() + ": Number of splits to expenses account is not between " + NOF_SPLITS_FEES_TAXES_MIN + " and " + NOF_SPLITS_FEES_TAXES_MAX;
+			LOGGER.error("validate: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		if ( splitCounter[SplitAccountType.OFFSETTING.ordinal()] != NOF_SPLITS_OFFSETTING ) {
+			String msg = "Trx ID " + getID() + ": Number of splits to offsetting account is not " + NOF_SPLITS_OFFSETTING;
+			LOGGER.error("validate: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		// ---
+		
+		validateStockAcctSplit( getStockAccountSplit() );
+		
+		for ( KMyMoneyTransactionSplit splt : getExpensesSplits() ) {
+			validateTaxesFeesAcctSplit( splt );
+		}
+		
+		validateOffsettingAcctSplit( getOffsettingAccountSplit() );
 
-    // ---------------------------------------------------------------
+		// ---
+		
+		if ( getBalance().doubleValue() != 0.0 ) {
+			String msg = "Trx ID :" + getID() + ": Transaction is not balanced: " + getBalance();
+			LOGGER.error("validate: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+	}
+	
+	// ----------------------------
+	
+	private void validateStockAcctSplit(final KMyMoneyTransactionSplit splt) throws TransactionValidationException {
+		if ( splt.getAction() != KMyMoneyTransactionSplit.Action.BUY_SHARES ) {
+			String msg = "the split's action is not valid";
+			LOGGER.error("validateStockAcctSplit: " + msg);
+			throw new TransactionValidationException("msg");
+		}
+		
+		if ( splt.getAccount().getType() != KMyMoneyAccount.Type.STOCK ) {
+			String msg = "the split's account's type is not valid";
+			LOGGER.error("validateStockAcctSplit: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		if ( splt.getAccount().getQualifSecCurrID().getType() == KMMQualifSecCurrID.Type.CURRENCY ) {
+			String msg = "the split's account's security/currency is not valid";
+			LOGGER.error("validateStockAcctSplit: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		if ( splt.getShares().doubleValue() <= 0.0 ) {
+			String msg = "the split's shares is not valid";
+			LOGGER.error("validateStockAcctSplit: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		if ( splt.getValue().doubleValue() <= 0.0 ) {
+			String msg = "the split's value is not valid";
+			LOGGER.error("validateStockAcctSplit: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		if ( splt.getPrice().doubleValue() <= 0.0 ) {
+			String msg = "the split's price is not valid";
+			LOGGER.error("validateStockAcctSplit: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+	}
+	
+	private void validateTaxesFeesAcctSplit(final KMyMoneyTransactionSplit splt) throws TransactionValidationException {
+		if ( splt.getAction() != null ) { // null is valid!
+			String msg = "the split's action is not valid";
+			LOGGER.error("validateTaxesFeesAcctSplit: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		if ( splt.getAccount().getType() != KMyMoneyAccount.Type.EXPENSE ) {
+			String msg = "the split's account's type is not valid";
+			LOGGER.error("validateTaxesFeesAcctSplit: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		if ( splt.getAccount().getQualifSecCurrID().getType() != KMMQualifSecCurrID.Type.CURRENCY ) {
+			String msg = "the split's account's security/currency is not valid";
+			LOGGER.error("validateTaxesFeesAcctSplit: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		if ( splt.getShares().doubleValue() <= 0.0 ) {
+			String msg = "the split's shares is not valid";
+			LOGGER.error("validateTaxesFeesAcctSplit: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		if ( splt.getValue().doubleValue() <= 0.0 ) {
+			String msg = "the split's value is not valid";
+			LOGGER.error("validateTaxesFeesAcctSplit: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		if ( splt.getPrice().doubleValue() != 1.0 ) {
+			String msg = "the split's price is not valid";
+			LOGGER.error("validateStockAcctSplit: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		if ( ! splt.getShares().equals( splt.getValue() ) ) {
+			String msg = "the split's shares is not equal to its value";
+			LOGGER.error("validateTaxesFeesAcctSplit: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+	}
+	
+	private void validateOffsettingAcctSplit(final KMyMoneyTransactionSplit splt) throws TransactionValidationException {
+		if ( splt.getAction() != null ) { // null is valid!
+			String msg = "the split's action is not valid";
+			LOGGER.error("validateOffsettingAcctSplit: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		if ( splt.getAccount().getType() != KMyMoneyAccount.Type.CHECKING ) {
+			String msg = "the split's account's type is not valid";
+			LOGGER.error("validateOffsettingAcctSplit: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		if ( splt.getAccount().getQualifSecCurrID().getType() != KMMQualifSecCurrID.Type.CURRENCY ) {
+			String msg = "the split's account's security/currency is not valid";
+			LOGGER.error("validateOffsettingAcctSplit: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		if ( splt.getShares().doubleValue() >= 0.0 ) {
+			String msg = "the split's shares is not valid";
+			LOGGER.error("validateOffsettingAcctSplit: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		if ( splt.getValue().doubleValue() >= 0.0 ) {
+			String msg = "the split's value is not valid";
+			LOGGER.error("validateOffsettingAcctSplit: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		if ( splt.getPrice().doubleValue() != 1.0 ) {
+			String msg = "the split's price is not valid";
+			LOGGER.error("validateStockAcctSplit: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		if ( ! splt.getShares().equals( splt.getValue() ) ) {
+			String msg = "the split's shares is not equal to its value";
+			LOGGER.error("validateOffsettingAcctSplit: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+	}
+	
+	// ---------------------------------------------------------------
     
     @Override
     public String toString() {

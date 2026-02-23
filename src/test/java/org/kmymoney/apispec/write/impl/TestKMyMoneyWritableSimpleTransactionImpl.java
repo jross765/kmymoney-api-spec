@@ -105,7 +105,7 @@ public class TestKMyMoneyWritableSimpleTransactionImpl {
 		assertNotEquals(null, specTrxRO);
 		assertEquals(TRX_4_ID, specTrxRO.getID());
 
-		KMyMoneyWritableSimpleTransaction specTrxRW = new KMyMoneyWritableSimpleTransactionImpl((KMyMoneySimpleTransactionImpl) specTrxRO);
+		KMyMoneyWritableSimpleTransaction specTrxRW = new KMyMoneyWritableSimpleTransactionImpl(specTrxRO);
 		assertNotEquals(null, specTrxRW);
 		assertEquals(TRX_4_ID, specTrxRW.getID());
 		

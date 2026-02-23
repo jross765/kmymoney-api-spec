@@ -312,7 +312,7 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyTransactionImpl
 		}
 		
 		if ( ! splt.getShares().equals( splt.getValue() ) ) {
-			String msg = "the split's shares is not equal to ist value";
+			String msg = "the split's shares is not equal to its value";
 			LOGGER.error("validateTaxesFeesAcctSplit: " + msg);
 			throw new TransactionValidationException(msg);
 		}
@@ -356,7 +356,7 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyTransactionImpl
 		}
 		
 		if ( ! splt.getShares().equals( splt.getValue() ) ) {
-			String msg = "the split's shares is not equal to ist value";
+			String msg = "the split's shares is not equal to its value";
 			LOGGER.error("validateOffsettingAcctSplit: " + msg);
 			throw new TransactionValidationException(msg);
 		}
