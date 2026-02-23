@@ -285,11 +285,12 @@ public class KMyMoneyStockDividendTransactionImpl extends KMyMoneyTransactionImp
 			throw new TransactionValidationException(msg);
 		}
 		
-		if ( splt.getPrice().doubleValue() != 0.0 ) {
-			String msg = "the split's price is not valid";
-			LOGGER.error("validateStockAcctSplit: " + msg);
-			throw new TransactionValidationException(msg);
-		}
+		// ::TODO ::CHECK
+//		if ( splt.getPrice().doubleValue() != 0.0 ) {
+//			String msg = "the split's price is not valid";
+//			LOGGER.error("validateStockAcctSplit: " + msg);
+//			throw new TransactionValidationException(msg);
+//		}
 	}
 	
 	private void validateIncomeAcctSplit(final KMyMoneyTransactionSplit splt) throws TransactionValidationException {
@@ -323,11 +324,12 @@ public class KMyMoneyStockDividendTransactionImpl extends KMyMoneyTransactionImp
 			throw new TransactionValidationException(msg);
 		}
 		
-		if ( splt.getPrice().doubleValue() != 1.0 ) {
-			String msg = "the split's price is not valid";
-			LOGGER.error("validateIncomeAcctSplit: " + msg);
-			throw new TransactionValidationException(msg);
-		}
+		// ::TODO ::CHECK
+//		if ( splt.getPrice().doubleValue() != 1.0 ) {
+//			String msg = "the split's price is not valid";
+//			LOGGER.error("validateIncomeAcctSplit: " + msg);
+//			throw new TransactionValidationException(msg);
+//		}
 	}
 	
 	private void validateTaxesFeesAcctSplit(final KMyMoneyTransactionSplit splt) throws TransactionValidationException {
@@ -361,11 +363,12 @@ public class KMyMoneyStockDividendTransactionImpl extends KMyMoneyTransactionImp
 			throw new TransactionValidationException(msg);
 		}
 		
-		if ( splt.getPrice().doubleValue() != 1.0 ) {
-			String msg = "the split's price is not valid";
-			LOGGER.error("validateStockAcctSplit: " + msg);
-			throw new TransactionValidationException(msg);
-		}
+		// ::TODO ::CHECK
+//		if ( splt.getPrice().doubleValue() != 1.0 ) {
+//			String msg = "the split's price is not valid";
+//			LOGGER.error("validateStockAcctSplit: " + msg);
+//			throw new TransactionValidationException(msg);
+//		}
 		
 		if ( ! splt.getShares().equals( splt.getValue() ) ) {
 			String msg = "the split's shares is not equal to its value";
@@ -405,11 +408,12 @@ public class KMyMoneyStockDividendTransactionImpl extends KMyMoneyTransactionImp
 			throw new TransactionValidationException(msg);
 		}
 		
-		if ( splt.getPrice().doubleValue() != 0.0 ) {
-			String msg = "the split's price is not valid";
-			LOGGER.error("validateStockAcctSplit: " + msg);
-			throw new TransactionValidationException(msg);
-		}
+		// ::TODO ::CHECK
+//		if ( splt.getPrice().doubleValue() != 0.0 ) {
+//			String msg = "the split's price is not valid";
+//			LOGGER.error("validateStockAcctSplit: " + msg);
+//			throw new TransactionValidationException(msg);
+//		}
 		
 		if ( ! splt.getShares().equals( splt.getValue() ) ) {
 			String msg = "the split's shares is not equal to its value";
