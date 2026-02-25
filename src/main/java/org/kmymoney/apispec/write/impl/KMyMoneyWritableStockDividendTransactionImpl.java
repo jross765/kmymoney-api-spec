@@ -5,15 +5,16 @@ import java.util.List;
 
 import org.apache.commons.numbers.fraction.BigFraction;
 import org.kmymoney.api.read.KMyMoneyAccount;
+import org.kmymoney.api.read.KMyMoneySecurity;
 import org.kmymoney.api.read.KMyMoneyTransactionSplit;
 import org.kmymoney.api.write.KMyMoneyWritableTransactionSplit;
 import org.kmymoney.api.write.impl.KMyMoneyWritableTransactionImpl;
 import org.kmymoney.apispec.read.impl.KMyMoneySimpleTransactionImpl;
-import org.kmymoney.apispec.read.impl.KMyMoneyStockBuyTransactionImpl;
-import org.kmymoney.apispec.read.impl.KMyMoneyStockBuyTransactionImpl.SplitAccountType;
+import org.kmymoney.apispec.read.impl.KMyMoneyStockDividendTransactionImpl;
 import org.kmymoney.apispec.read.impl.TransactionValidationException;
-import org.kmymoney.apispec.write.KMyMoneyWritableStockBuyTransaction;
+import org.kmymoney.apispec.write.KMyMoneyWritableStockDividendTransaction;
 import org.kmymoney.base.basetypes.complex.KMMQualifSecCurrID;
+import org.kmymoney.base.basetypes.simple.KMMSecID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,14 +26,23 @@ import xyz.schnorxoborx.base.numbers.FixedPointNumber;
  * 
  * @see KMyMoneySimpleTransactionImpl
  */
-public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTransactionImpl 
-                                                     implements KMyMoneyWritableStockBuyTransaction
+public class KMyMoneyWritableStockDividendTransactionImpl extends KMyMoneyWritableTransactionImpl 
+                                                         implements KMyMoneyWritableStockDividendTransaction
 {
-	private static final Logger LOGGER = LoggerFactory.getLogger(KMyMoneyWritableStockBuyTransaction.class);
+	public enum SplitAccountType {
+		STOCK,
+		INCOME,
+		TAXES_FEES,
+		OFFSETTING
+	}
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(KMyMoneyWritableStockDividendTransactionImpl.class);
 
 	// ---------------------------------------------------------------
     
     private static final int NOF_SPLITS_STOCK = 1;
+    
+    private static final int NOF_SPLITS_INCOME = 1;
     
     private static final int NOF_SPLITS_FEES_TAXES_MIN = 0;
     private static final int NOF_SPLITS_FEES_TAXES_MAX = 4; // more is implausible
@@ -41,8 +51,8 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
     
     // ---
 
-    private static final int NOF_SPLITS_MIN = NOF_SPLITS_STOCK + NOF_SPLITS_FEES_TAXES_MIN + NOF_SPLITS_OFFSETTING;
-    private static final int NOF_SPLITS_MAX = NOF_SPLITS_STOCK + NOF_SPLITS_FEES_TAXES_MAX + NOF_SPLITS_OFFSETTING;
+    private static final int NOF_SPLITS_MIN = NOF_SPLITS_STOCK + NOF_SPLITS_INCOME + NOF_SPLITS_FEES_TAXES_MIN + NOF_SPLITS_OFFSETTING;
+    private static final int NOF_SPLITS_MAX = NOF_SPLITS_STOCK + NOF_SPLITS_INCOME + NOF_SPLITS_FEES_TAXES_MAX + NOF_SPLITS_OFFSETTING;
 
 	// ---------------------------------------------------------------
     
@@ -55,7 +65,7 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
      *
      * @param trx the file we belong to
      */
-    public KMyMoneyWritableStockBuyTransactionImpl(final KMyMoneyStockBuyTransactionImpl trx) {
+    public KMyMoneyWritableStockDividendTransactionImpl(final KMyMoneyStockDividendTransactionImpl trx) {
     	super(trx);
     	
     	init();
@@ -63,7 +73,7 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 		try {
 			validate();
 		} catch ( TransactionValidationException exc ) {
-			throw new IllegalArgumentException("argument <trx> does not meet the criteria for a stock-buy transaction");
+			throw new IllegalArgumentException("argument <trx> does not meet the criteria for a stock-dividend transaction");
 		} catch ( Exception exc ) {
 			throw new IllegalArgumentException("argument <trx>: something went wrong");
 		}
@@ -74,7 +84,7 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
      *
      * @param trx the file we belong to
      */
-    public KMyMoneyWritableStockBuyTransactionImpl(final KMyMoneyWritableStockBuyTransaction trx) {
+    public KMyMoneyWritableStockDividendTransactionImpl(final KMyMoneyWritableStockDividendTransaction trx) {
     	super(trx);
     	
     	init();
@@ -82,7 +92,7 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 		try {
 			validate();
 		} catch ( TransactionValidationException exc ) {
-			throw new IllegalArgumentException("argument <trx> does not meet the criteria for a stock-buy transaction");
+			throw new IllegalArgumentException("argument <trx> does not meet the criteria for a stock-dividend transaction");
 		} catch ( Exception exc ) {
 			throw new IllegalArgumentException("argument <trx>: something went wrong");
 		}
@@ -90,7 +100,7 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 
     // ---------------------------------------------------------------
     
-    // ::TODO: Redundant to GnuCashStockBuyTransactionImpl.init()
+    // ::TODO: Redundant to KMyMoneyStockBuyTransactionImpl.init()
     protected void init() {
 	    splitCounter = new int[SplitAccountType.values().length];
 	    
@@ -125,6 +135,15 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
     		throw new TransactionSplitNotFoundException();
 	
     	return (KMyMoneyWritableTransactionSplit) getStockAccountSplit();
+	}
+
+	@Override
+	public KMyMoneyWritableTransactionSplit getWritableIncomeAccountSplit() throws TransactionSplitNotFoundException
+	{
+    	if ( getSplitsCount() == 0 )
+    		throw new TransactionSplitNotFoundException();
+	
+    	return (KMyMoneyWritableTransactionSplit) getIncomeAccountSplit();
 	}
 
 	@Override
@@ -166,6 +185,20 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 	}
 
 	@Override
+	public KMyMoneyTransactionSplit getIncomeAccountSplit() throws TransactionSplitNotFoundException {
+    	if ( getSplitsCount() == 0 )
+    		throw new TransactionSplitNotFoundException();
+	
+		for ( KMyMoneyTransactionSplit splt : getSplits() ) {
+			if ( splt.getAccount().getType() == KMyMoneyAccount.Type.INCOME ) {
+				return splt;
+			}
+		}
+		
+		return null;
+	}
+
+	@Override
 	public List<KMyMoneyTransactionSplit> getExpensesSplits() throws TransactionSplitNotFoundException {
     	if ( getSplitsCount() == 0 )
     		throw new TransactionSplitNotFoundException();
@@ -198,49 +231,13 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
     // ----------------------------
     
 	@Override
-	public FixedPointNumber getNofShares() throws TransactionSplitNotFoundException {
-		return getStockAccountSplit().getShares();
+	public FixedPointNumber getGrossDividend() throws TransactionSplitNotFoundException {
+		return getIncomeAccountSplit().getValue().negate(); // Notice: negate
 	}
 
 	@Override
-	public BigFraction getNofSharesRat() throws TransactionSplitNotFoundException {
-		return getStockAccountSplit().getSharesRat();
-	}
-
-	@Override
-	public FixedPointNumber getPricePerShare() throws TransactionSplitNotFoundException {
-		FixedPointNumber result = getNetPrice();
-		
-		result.divide( getNofShares() ); // mutable
-		
-		return result;
-	}
-
-	@Override
-	public BigFraction getPricePerShareRat() throws TransactionSplitNotFoundException {
-    	BigFraction result = getNetPriceRat();
-		
-		result = result.divide( getNofSharesRat() ); // immutable
-		
-		return result;
-	}
-
-	@Override
-	public FixedPointNumber getNetPrice() throws TransactionSplitNotFoundException {
-		FixedPointNumber result = getGrossPrice();
-		
-		result.subtract( getFeesTaxes() ); // mutable
-		
-		return result;
-	}
-
-	@Override
-	public BigFraction getNetPriceRat() throws TransactionSplitNotFoundException {
-		BigFraction result = getGrossPriceRat();
-		
-		result = result.subtract( getFeesTaxesRat() ); // immutable
-		
-		return result;
+	public BigFraction getGrossDividendRat() throws TransactionSplitNotFoundException {
+		return getIncomeAccountSplit().getValueRat().negate(); // Notice: negate
 	}
 
 	@Override
@@ -265,80 +262,36 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 		return result;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public FixedPointNumber getGrossPrice() throws TransactionSplitNotFoundException {
-		return getOffsettingAccountSplit().getValue().negate(); // Notice: negate
+	public FixedPointNumber getNetDividend() throws TransactionSplitNotFoundException
+	{
+		FixedPointNumber result = getGrossDividend();
+		
+		result.subtract( getFeesTaxes() ); // mutable
+		
+		return result;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public BigFraction getGrossPriceRat() throws TransactionSplitNotFoundException {
-		return getOffsettingAccountSplit().getValueRat().negate(); // Notice: negate
+	public BigFraction getNetDividendRat() throws TransactionSplitNotFoundException
+	{
+		BigFraction result = getGrossDividendRat();
+		
+		result = result.subtract( getFeesTaxesRat() ); // immutable
+		
+		return result;
 	}
 
     // ---------------------------------------------------------------
     
 	@Override
-	public void setNofShares(final FixedPointNumber val) throws TransactionSplitNotFoundException {
-		if ( val == null ) {
-			throw new IllegalArgumentException("argument <val> is null");
-		}
-		
-		// CAUTION: < 0 is valid (adjustment posting)
-		if ( val.equals(FixedPointNumber.ZERO) ) {
-			throw new IllegalArgumentException("argument <val> is = 0");
-		}
-		
-		getWritableStockAccountSplit().setShares(val);
-	}
-
-	@Override
-	public void setNofShares(final BigFraction val) throws TransactionSplitNotFoundException {
-		if ( val == null ) {
-			throw new IllegalArgumentException("argument <val> is null");
-		}
-		
-		// CAUTION: < 0 is valid (adjustment posting)
-		if ( val.equals(BigFraction.ZERO) ) {
-			throw new IllegalArgumentException("argument <val> is = 0");
-		}
-		
-		getWritableStockAccountSplit().setShares(val);
-	}
-
-	@Override
-	public void setPricePerShare(final FixedPointNumber amt) throws TransactionSplitNotFoundException {
-		if ( amt == null ) {
-			throw new IllegalArgumentException("argument <amt> is null");
-		}
-		
-		if ( amt.compareTo(FixedPointNumber.ZERO) <= 0 ) {
-			throw new IllegalArgumentException("argument <amt> is <= 0");
-		}
-		
-		FixedPointNumber netPrc = getNofShares().multiply(amt);
-		FixedPointNumber feeTax = getFeesTaxes();
-		FixedPointNumber grossPrc = netPrc.copy().add(feeTax); // mutable
-		setGrossPrice(grossPrc);
-	}
-
-	@Override
-	public void setPricePerShare(final BigFraction amt) throws TransactionSplitNotFoundException {
-		if ( amt == null ) {
-			throw new IllegalArgumentException("argument <amt> is null");
-		}
-		
-		if ( amt.compareTo(BigFraction.ZERO) <= 0 ) {
-			throw new IllegalArgumentException("argument <amt> is <= 0");
-		}
-		
-		BigFraction netPrc = getNofSharesRat().multiply(amt);
-		BigFraction feeTax = getFeesTaxesRat();
-		BigFraction grossPrc = netPrc.add(feeTax); // immutable
-		setGrossPrice(grossPrc);
-	}
-
-	@Override
-	public void setGrossPrice(final FixedPointNumber amt) throws TransactionSplitNotFoundException {
+	public void setGrossDividend(FixedPointNumber amt) throws TransactionSplitNotFoundException {
 		if ( amt == null ) {
 			throw new IllegalArgumentException("argument <amt> is null");
 		}
@@ -350,12 +303,46 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 		
 		FixedPointNumber amtNeg = amt.copy().negate(); // mutable
 		
+		getWritableIncomeAccountSplit().setShares(amtNeg);
+		getWritableIncomeAccountSplit().setValue(amtNeg);
+	}
+
+	@Override
+	public void setGrossDividend(BigFraction amt) throws TransactionSplitNotFoundException {
+		if ( amt == null ) {
+			throw new IllegalArgumentException("argument <amt> is null");
+		}
+		
+		// CAUTION: < 0 is valid (adjustment posting)
+		if ( amt.equals(BigFraction.ZERO) ) {
+			throw new IllegalArgumentException("argument <amt> is = 0");
+		}
+		
+		BigFraction amtNeg = amt.negate(); // mutable
+		
+		getWritableIncomeAccountSplit().setShares(amtNeg);
+		getWritableIncomeAccountSplit().setValue(amtNeg);
+	}
+
+	@Override
+	public void setNetDividend(final FixedPointNumber amt) throws TransactionSplitNotFoundException {
+		if ( amt == null ) {
+			throw new IllegalArgumentException("argument <amt> is null");
+		}
+		
+		// CAUTION: < 0 is valid (adjustment posting)
+		if ( amt.equals(FixedPointNumber.ZERO) ) {
+			throw new IllegalArgumentException("argument <amt> is = 0");
+		}
+		
+		FixedPointNumber amtNeg = amt.copy(); // mutable
+		
 		getWritableOffsettingAccountSplit().setShares(amtNeg);
 		getWritableOffsettingAccountSplit().setValue(amtNeg);
 	}
 
 	@Override
-	public void setGrossPrice(final BigFraction amt) throws TransactionSplitNotFoundException {
+	public void setNetDividend(final BigFraction amt) throws TransactionSplitNotFoundException {
 		if ( amt == null ) {
 			throw new IllegalArgumentException("argument <amt> is null");
 		}
@@ -413,6 +400,8 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 		
 		validateStockAcctSplit( getStockAccountSplit() );
 		
+		validateIncomeAcctSplit( getIncomeAccountSplit() );
+		
 		for ( KMyMoneyTransactionSplit splt : getExpensesSplits() ) {
 			validateTaxesFeesAcctSplit( splt );
 		}
@@ -431,7 +420,7 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 	// ----------------------------
 	
 	private void validateStockAcctSplit(final KMyMoneyTransactionSplit splt) throws TransactionValidationException {
-		if ( splt.getAction() != KMyMoneyTransactionSplit.Action.BUY_SHARES ) {
+		if ( splt.getAction() != KMyMoneyTransactionSplit.Action.DIVIDEND ) {
 			String msg = "the split's action is not valid";
 			LOGGER.error("validateStockAcctSplit: " + msg);
 			throw new TransactionValidationException("msg");
@@ -449,21 +438,47 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 			throw new TransactionValidationException(msg);
 		}
 		
-		if ( splt.getShares().doubleValue() <= 0.0 ) {
-			String msg = "the split's shares is not valid";
+		if ( splt.getShares().doubleValue() != 0.0 ) {
+			String msg = "the split's quantity is not valid";
 			LOGGER.error("validateStockAcctSplit: " + msg);
 			throw new TransactionValidationException(msg);
 		}
 		
-		if ( splt.getValue().doubleValue() <= 0.0 ) {
+		if ( splt.getValue().doubleValue() != 0.0 ) {
 			String msg = "the split's value is not valid";
 			LOGGER.error("validateStockAcctSplit: " + msg);
 			throw new TransactionValidationException(msg);
 		}
+	}
+	
+	private void validateIncomeAcctSplit(final KMyMoneyTransactionSplit splt) throws TransactionValidationException {
+		if ( splt.getAction() != null ) {
+			String msg = "the split's action is not valid";
+			LOGGER.error("validateIncomeAcctSplit: " + msg);
+			throw new TransactionValidationException("msg");
+		}
 		
-		if ( splt.getPrice().doubleValue() <= 0.0 ) {
-			String msg = "the split's price is not valid";
-			LOGGER.error("validateStockAcctSplit: " + msg);
+		if ( splt.getAccount().getType() != KMyMoneyAccount.Type.INCOME ) {
+			String msg = "the split's account's type is not valid";
+			LOGGER.error("validateIncomeAcctSplit: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		if ( splt.getAccount().getQualifSecCurrID().getType() != KMMQualifSecCurrID.Type.CURRENCY ) {
+			String msg = "the split's account's security/currency is not valid";
+			LOGGER.error("validateIncomeAcctSplit: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		if ( splt.getShares().doubleValue() >= 0.0 ) {
+			String msg = "the split's shares is not valid";
+			LOGGER.error("validateIncomeAcctSplit: " + msg);
+			throw new TransactionValidationException(msg);
+		}
+		
+		if ( splt.getValue().doubleValue() >= 0.0 ) {
+			String msg = "the split's value is not valid";
+			LOGGER.error("validateIncomeAcctSplit: " + msg);
 			throw new TransactionValidationException(msg);
 		}
 	}
@@ -488,7 +503,7 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 		}
 		
 		if ( splt.getShares().doubleValue() <= 0.0 ) {
-			String msg = "the split's shares is not valid";
+			String msg = "the split's quantity is not valid";
 			LOGGER.error("validateTaxesFeesAcctSplit: " + msg);
 			throw new TransactionValidationException(msg);
 		}
@@ -498,15 +513,9 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 			LOGGER.error("validateTaxesFeesAcctSplit: " + msg);
 			throw new TransactionValidationException(msg);
 		}
-		
-		if ( splt.getPrice().doubleValue() != 1.0 ) {
-			String msg = "the split's price is not valid";
-			LOGGER.error("validateStockAcctSplit: " + msg);
-			throw new TransactionValidationException(msg);
-		}
-		
+
 		if ( ! splt.getShares().equals( splt.getValue() ) ) {
-			String msg = "the split's shares is not equal to its value";
+			String msg = "the split's quantity is not equal to its value";
 			LOGGER.error("validateTaxesFeesAcctSplit: " + msg);
 			throw new TransactionValidationException(msg);
 		}
@@ -531,26 +540,20 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 			throw new TransactionValidationException(msg);
 		}
 		
-		if ( splt.getShares().doubleValue() >= 0.0 ) {
-			String msg = "the split's shares is not valid";
+		if ( splt.getShares().doubleValue() <= 0.0 ) {
+			String msg = "the split's quantity is not valid";
 			LOGGER.error("validateOffsettingAcctSplit: " + msg);
 			throw new TransactionValidationException(msg);
 		}
 		
-		if ( splt.getValue().doubleValue() >= 0.0 ) {
+		if ( splt.getValue().doubleValue() <= 0.0 ) {
 			String msg = "the split's value is not valid";
 			LOGGER.error("validateOffsettingAcctSplit: " + msg);
 			throw new TransactionValidationException(msg);
 		}
 		
-		if ( splt.getPrice().doubleValue() != 1.0 ) {
-			String msg = "the split's price is not valid";
-			LOGGER.error("validateStockAcctSplit: " + msg);
-			throw new TransactionValidationException(msg);
-		}
-		
 		if ( ! splt.getShares().equals( splt.getValue() ) ) {
-			String msg = "the split's shares is not equal to its value";
+			String msg = "the split's quantity is not equal to its value";
 			LOGGER.error("validateOffsettingAcctSplit: " + msg);
 			throw new TransactionValidationException(msg);
 		}
@@ -561,7 +564,7 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
     @Override
     public String toString() {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("KMyMoneyWritableStockBuyTransactionImpl [");
+		buffer.append("KMyMoneyWritableStockDividendTransactionImpl [");
 
 		buffer.append("id=");
 		buffer.append(getID());
@@ -575,6 +578,13 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 		buffer.append(", stock-acct=");
 		try {
 			buffer.append(getStockAccountSplit().getAccount().getID());
+		} catch (Exception e) {
+			buffer.append("ERROR");
+		}
+
+		buffer.append(", income-acct=");
+		try {
+			buffer.append(getIncomeAccountSplit().getAccount().getID());
 		} catch (Exception e) {
 			buffer.append("ERROR");
 		}
@@ -611,5 +621,91 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 
 		return buffer.toString();
     }
+
+	public String toStringHuman() {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("Stock-dividend transaction:\n");
+
+		buffer.append(" - ID: ");
+		buffer.append(getID() + "\n");
+
+		buffer.append(" - Splits:\n");
+		try
+		{
+			buffer.append("   o Stock acct split: ");
+			buffer.append("ID: " + getStockAccountSplit().getID() + ", ");
+			buffer.append("acct: " + getStockAccountSplit().getAccount().getQualifiedName() + ", ");
+			KMMQualifSecCurrID secCurrID = getStockAccountSplit().getAccount().getQualifSecCurrID();
+			KMMSecID secID = new KMMSecID(secCurrID.getCode());
+			KMyMoneySecurity sec = getKMyMoneyFile().getSecurityByID(secID);
+			buffer.append("cmdty: '" + sec.getName() + "', ");
+			buffer.append("no. of shares: " + getStockAccountSplit().getSharesFormatted() + "\n");
+		}
+		catch ( TransactionSplitNotFoundException e )
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		try
+		{
+			buffer.append("   o Income acct split: ");
+			buffer.append("ID: " + getIncomeAccountSplit().getID() + ", ");
+			buffer.append("acct: " + getIncomeAccountSplit().getAccount().getQualifiedName() + ", ");
+			buffer.append("amt: " + getIncomeAccountSplit().getValueFormatted() + "\n");
+		}
+		catch ( TransactionSplitNotFoundException e )
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		try
+		{
+			for ( KMyMoneyTransactionSplit splt : getExpensesSplits() ) {
+				buffer.append("   o Expenses acct split: ");
+				buffer.append("ID: " + splt.getID() + ", ");
+				buffer.append("acct: " + splt.getAccount().getQualifiedName() + ", ");
+				buffer.append("amt: " + splt.getValueFormatted() + "\n");
+			}
+		}
+		catch ( TransactionSplitNotFoundException e )
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+				
+		try
+		{
+			buffer.append("   o Offsetting acct split: ");
+			buffer.append("ID: " + getOffsettingAccountSplit().getID() + ", ");
+			buffer.append("acct: " + getOffsettingAccountSplit().getAccount().getQualifiedName() + ", ");
+			buffer.append("amt: " + getOffsettingAccountSplit().getValueFormatted() + "\n");
+		}
+		catch ( TransactionSplitNotFoundException e )
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		buffer.append(" - Date posted: ");
+		try {
+			buffer.append(getDatePosted().format(DATE_POSTED_FORMAT) + "\n");
+		} catch (Exception e) {
+			buffer.append(getDatePosted().toString() + "\n");
+		}
+
+		buffer.append(" - Date entered: ");
+		try {
+			buffer.append(getDateEntered().format(DATE_ENTERED_FORMAT) + "\n");
+		} catch (Exception e) {
+			buffer.append(getDateEntered().toString() + "\n");
+		}
+
+		buffer.append(" - Memo: '");
+		buffer.append(getMemo() + "'\n");
+
+		return buffer.toString();
+	}
 
 }
