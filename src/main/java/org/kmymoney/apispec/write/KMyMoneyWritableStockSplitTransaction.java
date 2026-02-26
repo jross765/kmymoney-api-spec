@@ -30,9 +30,9 @@ public interface KMyMoneyWritableStockSplitTransaction extends KMyMoneyWritableT
     
     void setNofAddShares(BigFraction val)  throws TransactionSplitNotFoundException;
     
-    void setNofSharesBeforeSplit(FixedPointNumber val)  throws TransactionSplitNotFoundException;
-    
-    void setNofSharesBeforeSplit(BigFraction val)  throws TransactionSplitNotFoundException;
+//    void setNofSharesBeforeSplit(FixedPointNumber val)  throws TransactionSplitNotFoundException;
+//    
+//    void setNofSharesBeforeSplit(BigFraction val)  throws TransactionSplitNotFoundException;
     
     void setNofSharesAfterSplit(FixedPointNumber val)  throws TransactionSplitNotFoundException;
     

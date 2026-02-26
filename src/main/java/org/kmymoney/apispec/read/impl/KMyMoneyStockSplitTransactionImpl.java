@@ -36,7 +36,7 @@ public class KMyMoneyStockSplitTransactionImpl extends KMyMoneyTransactionImpl
 		try {
 			validate();
 		} catch ( TransactionValidationException exc ) {
-			throw new IllegalArgumentException("argument <trx> does not meet the criteria for a simple transaction");
+			throw new IllegalArgumentException("argument <trx> does not meet the criteria for a stock-split transaction");
 		} catch ( Exception exc ) {
 			throw new IllegalArgumentException("argument <trx>: something went wrong");
 		}
@@ -53,7 +53,7 @@ public class KMyMoneyStockSplitTransactionImpl extends KMyMoneyTransactionImpl
 		try {
 			validate();
 		} catch ( TransactionValidationException exc ) {
-			throw new IllegalArgumentException("argument <trx> does not meet the criteria for a simple transaction");
+			throw new IllegalArgumentException("argument <trx> does not meet the criteria for a stock-split transaction");
 		} catch ( Exception exc ) {
 			throw new IllegalArgumentException("argument <trx>: something went wrong");
 		}
@@ -109,6 +109,9 @@ public class KMyMoneyStockSplitTransactionImpl extends KMyMoneyTransactionImpl
      */
 	@Override
 	public KMyMoneyTransactionSplit getSplit() throws TransactionSplitNotFoundException {
+    	if ( getSplitsCount() == 0 )
+    		throw new TransactionSplitNotFoundException();
+	
 		return getSplits().get(0);
 	}
 
@@ -148,14 +151,20 @@ public class KMyMoneyStockSplitTransactionImpl extends KMyMoneyTransactionImpl
 
 	@Override
 	public FixedPointNumber getNofSharesAfterSplit() throws TransactionSplitNotFoundException {
-		KMyMoneyAccount acct = getSplit().getAccount();
-		return acct.getBalance(getSplit());
+		// Altern. 1:
+		// KMyMoneyAccount acct = getSplit().getAccount();
+		// return acct.getBalance(getSplit());
+		// Altern. 2:
+		return getNofSharesBeforeSplit().multiply( getSplitFactor() );
 	}
 	
 	@Override
 	public BigFraction getNofSharesAfterSplitRat() throws TransactionSplitNotFoundException {
-		KMyMoneyAccount acct = getSplit().getAccount();
-		return acct.getBalanceRat(getSplit());
+		// Altern. 1:
+		// KMyMoneyAccount acct = getSplit().getAccount();
+		// return acct.getBalanceRat(getSplit());
+		// Altern. 2:
+		return getNofSharesBeforeSplitRat().multiply( getSplitFactorRat() );
 	}
 	
 	// ----------------------------
