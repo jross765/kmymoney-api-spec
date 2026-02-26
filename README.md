@@ -16,23 +16,26 @@ This module provides specialized entities (classes) that are based on more gener
 ### V. 0.1 &rarr; 0.2
 Introduced:
 
-* `KMyMoneyStockDividendTransaction`
+* `KMyMoney(Writable)StockDividendTransaction`
 
 Improvements:
 
-Added to the real added value of this module's classes: More non-trivial special methods:
+* Added to the real added value of this module's classes: More non-trivial special methods:
+    * `KMyMoneySimpleTransaction`: Introduced new special methods: `getAmount()`
+    * `KMyMoneyStockBuyTransaction`: Introduced new special methods: `getGrossPrice()`, `getNetPrice()`, `getFeesTaxes()`
+    * `KMyMoneyStockSplitTransaction`: Introduced new special methods: `getNofAddShares()`, `getSplitFactor()`, `getNofSharesBeforeSplit()`, `getNofSharesAfterSplit()`
+       (newly introduced, anyway)
 
-* `KMyMoneySimpleTransaction`: Introduced new special methods: `getAmount()`
+* Analogously, for the writable variants of theses classes, introduced according `setXYZ()` methods
 
-* `KMyMoneyStockBuyTransaction`: Introduced new special methods: `getGrossPrice()`, `getNetPrice()`, `getFeesTaxes()`
+* For all the above-mentioned new methods: The `BigFraction` variant, as well.
 
-* `KMyMoneyStockSplitTransaction`: Introduced new special methods: `getNofAddShares()`, `getSplitFactor()`, `getNofSharesBeforeSplit()`, `getNofSharesAfterSplit()`
+* For all `KMyMoneyWritableXYZTransaction` classes: Proper test cases / data.
+  (Now they are all covered)
 
-For all the above-mentioned new methods: The `BigFraction` variant, as well.
-
-* `KMyMoneyWritableSimpleTransaction`: Now proper implementation and test cases / data.
-
-* Overall: A few minor improvements here and there.
+* Overall: 
+    * Fixed bugs
+    * A few minor improvements here and there.
 
 ### V. 0.1
 New.
@@ -52,6 +55,7 @@ Introduced:
   * Single transactions:
     * Stock/security sell transaction
     * Foreign currency transaction
+    * Possibly: Book-closing transaction (EOY)
 
   * Multi-transactions:
     * Move-stocks/securities transaction (from one securities account to another)
