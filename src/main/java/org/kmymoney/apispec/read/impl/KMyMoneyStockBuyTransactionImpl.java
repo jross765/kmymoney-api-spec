@@ -12,6 +12,7 @@ import org.kmymoney.api.read.impl.KMyMoneyTransactionImpl;
 import org.kmymoney.api.read.impl.KMyMoneyTransactionSplitImpl;
 import org.kmymoney.apispec.read.KMyMoneyStockBuyTransaction;
 import org.kmymoney.base.basetypes.complex.KMMQualifSecCurrID;
+import org.kmymoney.base.basetypes.simple.KMMAcctID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -305,11 +306,11 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyTransactionImpl
 			throw new TransactionValidationException(msg);
 		}
 		
-		if ( splt.getPrice().doubleValue() != 1.0 ) {
-			String msg = "the split's price is not valid";
-			LOGGER.error("validateStockAcctSplit: " + msg);
-			throw new TransactionValidationException(msg);
-		}
+//		if ( splt.getPrice().doubleValue() != 1.0 ) {
+//			String msg = "the split's price is not valid";
+//			LOGGER.error("validateStockAcctSplit: " + msg);
+//			throw new TransactionValidationException(msg);
+//		}
 		
 		if ( ! splt.getShares().equals( splt.getValue() ) ) {
 			String msg = "the split's shares is not equal to its value";
@@ -382,6 +383,17 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyTransactionImpl
 		return null;
 	}
 
+	@Override
+    public KMyMoneyTransactionSplit getExpensesSplit(KMMAcctID expAcctID)  throws TransactionSplitNotFoundException {
+    	for ( KMyMoneyTransactionSplit splt : getExpensesSplits() ) {
+    		if ( splt.getAccountID().getStdID().equals( expAcctID ) ) {
+    			return splt;
+    		}
+    	}
+    	
+    	throw new TransactionSplitNotFoundException();
+    }
+    
 	/**
 	 * {@inheritDoc}
 	 */
@@ -484,6 +496,28 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyTransactionImpl
 		result = result.subtract( getFeesTaxesRat() ); // immutable
 		
 		return result;
+	}
+
+	@Override
+	public FixedPointNumber getFeeTax(final KMMAcctID expAcctID) throws TransactionSplitNotFoundException {
+		for ( KMyMoneyTransactionSplit splt : getExpensesSplits() ) {
+			if ( splt.getAccountID().getStdID().equals( expAcctID ) ) {
+				return splt.getValue();
+			}
+		}
+		
+		throw new TransactionSplitNotFoundException();
+	}
+
+	@Override
+	public BigFraction getFeeTaxRat(final KMMAcctID expAcctID) throws TransactionSplitNotFoundException {
+		for ( KMyMoneyTransactionSplit splt : getExpensesSplits() ) {
+			if ( splt.getAccountID().getStdID().equals( expAcctID ) ) {
+				return splt.getValueRat();
+			}
+		}
+		
+		throw new TransactionSplitNotFoundException();
 	}
 
 	/**

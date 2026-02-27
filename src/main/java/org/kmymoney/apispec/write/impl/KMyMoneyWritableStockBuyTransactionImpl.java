@@ -13,7 +13,9 @@ import org.kmymoney.apispec.read.impl.KMyMoneyStockBuyTransactionImpl;
 import org.kmymoney.apispec.read.impl.KMyMoneyStockBuyTransactionImpl.SplitAccountType;
 import org.kmymoney.apispec.read.impl.TransactionValidationException;
 import org.kmymoney.apispec.write.KMyMoneyWritableStockBuyTransaction;
+import org.kmymoney.base.basetypes.complex.KMMComplAcctID;
 import org.kmymoney.base.basetypes.complex.KMMQualifSecCurrID;
+import org.kmymoney.base.basetypes.simple.KMMAcctID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -128,6 +130,17 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 	}
 
 	@Override
+    public KMyMoneyWritableTransactionSplit getWritableExpensesSplit(KMMAcctID expAcctID)  throws TransactionSplitNotFoundException {
+    	for ( KMyMoneyWritableTransactionSplit splt : getWritableExpensesSplits() ) {
+    		if ( splt.getAccountID().getStdID().equals( expAcctID ) ) {
+    			return splt;
+    		}
+    	}
+    	
+    	throw new TransactionSplitNotFoundException();
+    }
+    
+	@Override
 	public List<KMyMoneyWritableTransactionSplit> getWritableExpensesSplits() throws TransactionSplitNotFoundException {
     	if ( getSplitsCount() == 0 )
     		throw new TransactionSplitNotFoundException();
@@ -165,6 +178,17 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 		return null;
 	}
 
+    @Override
+    public KMyMoneyTransactionSplit getExpensesSplit(KMMAcctID expAcctID)  throws TransactionSplitNotFoundException {
+    	for ( KMyMoneyTransactionSplit splt : getExpensesSplits() ) {
+    		if ( splt.getAccountID().getStdID().equals( expAcctID ) ) {
+    			return splt;
+    		}
+    	}
+    	
+    	throw new TransactionSplitNotFoundException();
+    }
+    
 	@Override
 	public List<KMyMoneyTransactionSplit> getExpensesSplits() throws TransactionSplitNotFoundException {
     	if ( getSplitsCount() == 0 )
@@ -209,11 +233,19 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 
 	@Override
 	public FixedPointNumber getPricePerShare() throws TransactionSplitNotFoundException {
+		return getPricePerShare_Var2();
+	}
+
+	private FixedPointNumber getPricePerShare_Var1() throws TransactionSplitNotFoundException {
 		FixedPointNumber result = getNetPrice();
 		
 		result.divide( getNofShares() ); // mutable
 		
 		return result;
+	}
+
+	private FixedPointNumber getPricePerShare_Var2() throws TransactionSplitNotFoundException {
+		return getStockAccountSplit().getPrice();
 	}
 
 	@Override
@@ -227,6 +259,10 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 
 	@Override
 	public FixedPointNumber getNetPrice() throws TransactionSplitNotFoundException {
+		return getNetPrice_Var1();
+	}
+
+	private FixedPointNumber getNetPrice_Var1() throws TransactionSplitNotFoundException {
 		FixedPointNumber result = getGrossPrice();
 		
 		result.subtract( getFeesTaxes() ); // mutable
@@ -234,13 +270,51 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 		return result;
 	}
 
+	private FixedPointNumber getNetPrice_Var2() throws TransactionSplitNotFoundException {
+		FixedPointNumber result = getNofShares().multiply( getPricePerShare() );
+		
+		return result;
+	}
+
 	@Override
 	public BigFraction getNetPriceRat() throws TransactionSplitNotFoundException {
+		return getNetPriceRat_Var1();
+	}
+
+	private BigFraction getNetPriceRat_Var1() throws TransactionSplitNotFoundException {
 		BigFraction result = getGrossPriceRat();
 		
 		result = result.subtract( getFeesTaxesRat() ); // immutable
 		
 		return result;
+	}
+
+	private BigFraction getNetPriceRat_Var2() throws TransactionSplitNotFoundException {
+		BigFraction result = getNofSharesRat().multiply( getPricePerShareRat() );
+		
+		return result;
+	}
+
+	@Override
+	public FixedPointNumber getFeeTax(final KMMAcctID expAcctID) throws TransactionSplitNotFoundException {
+		for ( KMyMoneyTransactionSplit splt : getExpensesSplits() ) {
+			if ( splt.getAccountID().getStdID().equals( expAcctID ) ) {
+				return splt.getValue();
+			}
+		}
+		
+		return FixedPointNumber.ZERO.copy(); // mutable
+	}
+
+	@Override
+	public BigFraction getFeeTaxRat(final KMMAcctID expAcctID) throws TransactionSplitNotFoundException {
+		for ( KMyMoneyTransactionSplit splt : getExpensesSplits() ) {
+			if ( splt.getAccountID().getStdID().equals( expAcctID ) ) {
+				return splt.getValueRat();
+			}
+		}
+		
+		return BigFraction.ZERO;
 	}
 
 	@Override
@@ -278,15 +352,135 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
     // ---------------------------------------------------------------
     
 	@Override
+	public void setStockAcctID(KMMAcctID stockAcctID) throws TransactionSplitNotFoundException {
+		if ( stockAcctID == null ) {
+			throw new IllegalArgumentException("argument <stockAcctID> is null");
+		}
+		
+		if ( ! stockAcctID.isSet() ) {
+			throw new IllegalArgumentException("argument <stockAcctID> is not set");
+		}
+		
+		// ---
+		
+		KMyMoneyAccount stockAcct = getKMyMoneyFile().getAccountByID(stockAcctID);
+		if ( stockAcct == null ) {
+			LOGGER.error("setStockAcctID: " +
+					"Stock-buy transaction " + getID() + ": " +
+					"Could not find account with ID " + stockAcctID);
+			throw new IllegalStateException("Could not find account with ID " + stockAcctID);
+		}
+		
+		// ---
+		
+		setStockAcct(stockAcct);
+	}
+
+	@Override
+	public void setStockAcct(KMyMoneyAccount stockAcct) throws TransactionSplitNotFoundException {
+		if ( stockAcct == null ) {
+			throw new IllegalArgumentException("argument <stockAcct> is null");
+		}
+		
+		// ---
+		
+		if ( stockAcct.getType() != KMyMoneyAccount.Type.STOCK ) {
+			LOGGER.error("setStockAcct: " +
+						"Stock-buy transaction " + getID() + ": " +
+						"Account with ID " + stockAcct.getID() + " is not of type " + KMyMoneyAccount.Type.STOCK);
+			throw new IllegalArgumentException("Account with ID " + stockAcct.getID() + " is not of type " + KMyMoneyAccount.Type.STOCK);
+		}
+		
+		boolean acctChange = false;
+		KMMComplAcctID oldAcctID = getStockAccountSplit().getAccountID();
+		if ( ! oldAcctID.equals( stockAcct.getID() ) ) {
+			acctChange = true;
+		}
+		if ( acctChange ) {
+			LOGGER.debug("setStockAcct: " +
+						"Stock-buy transaction " + getID() + ": " +
+						"Changing offsetting account ID from " + oldAcctID + " to " + stockAcct.getID());
+		}
+
+		// ---
+		
+		getWritableStockAccountSplit().setAccountID(stockAcct.getID());
+	}
+	
+	// ----------------------------
+
+	@Override
+	public void setOffsetttingAcctID(KMMAcctID offsettingAcctID) throws TransactionSplitNotFoundException
+	{
+		if ( offsettingAcctID == null ) {
+			throw new IllegalArgumentException("argument <offsettingAcctID> is null");
+		}
+		
+		if ( ! offsettingAcctID.isSet() ) {
+			throw new IllegalArgumentException("argument <offsettingAcctID> is not set");
+		}
+		
+		// ---
+		
+		KMyMoneyAccount offsettingAcct = getKMyMoneyFile().getAccountByID(offsettingAcctID);
+		if ( offsettingAcct == null ) {
+			LOGGER.error("setStockAcctID: " +
+					"Stock-buy transaction " + getID() + ": " +
+					"Could not find account with ID " + offsettingAcctID);
+			throw new IllegalStateException("Could not find account with ID " + offsettingAcctID);
+		}
+		
+		// ---
+		
+		setOffsetttingAcct(offsettingAcct);
+	}
+
+	@Override
+	public void setOffsetttingAcct(KMyMoneyAccount offsettingAcct) throws TransactionSplitNotFoundException
+	{
+		if ( offsettingAcct == null ) {
+			throw new IllegalArgumentException("argument <offsettingAcct> is null");
+		}
+		
+		// ---
+		
+		if ( offsettingAcct.getType() != KMyMoneyAccount.Type.CHECKING ) {
+			LOGGER.error("setOffsetttingAcct: " +
+						"Stock-buy transaction " + getID() + ": " +
+						"Account with ID " + offsettingAcct.getID() + " is not of type " + KMyMoneyAccount.Type.CHECKING);
+			throw new IllegalArgumentException("Account with ID " + offsettingAcct.getID() + " is not of type " + KMyMoneyAccount.Type.CHECKING);
+		}
+		
+		boolean acctChange = false;
+		KMMComplAcctID oldAcctID = getStockAccountSplit().getAccountID();
+		if ( ! oldAcctID.equals( offsettingAcct.getID() ) ) {
+			acctChange = true;
+		}
+		if ( acctChange ) {
+			LOGGER.debug("setOffsetttingAcct: " +
+						"Stock-buy transaction " + getID() + ": " +
+						"Changing offsetting account ID from " + oldAcctID + " to " + offsettingAcct.getID());
+		}
+
+		// ---
+		
+		getWritableOffsettingAccountSplit().setAccountID(offsettingAcct.getID());
+	}
+
+    // ---------------------------------------------------------------
+    
+	@Override
 	public void setNofShares(final FixedPointNumber val) throws TransactionSplitNotFoundException {
 		if ( val == null ) {
 			throw new IllegalArgumentException("argument <val> is null");
 		}
 		
 		// CAUTION: < 0 is valid (adjustment posting)
-		if ( val.equals(FixedPointNumber.ZERO) ) {
-			throw new IllegalArgumentException("argument <val> is = 0");
+		if ( val.compareTo(FixedPointNumber.ZERO) <= 0 ) {
+			throw new IllegalArgumentException("argument <val> is <= 0");
 		}
+		
+		// ---
 		
 		getWritableStockAccountSplit().setShares(val);
 	}
@@ -298,12 +492,66 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 		}
 		
 		// CAUTION: < 0 is valid (adjustment posting)
-		if ( val.equals(BigFraction.ZERO) ) {
-			throw new IllegalArgumentException("argument <val> is = 0");
+		if ( val.compareTo(BigFraction.ZERO) <= 0 ) {
+			throw new IllegalArgumentException("argument <val> is <= 0");
 		}
+		
+		// ---
 		
 		getWritableStockAccountSplit().setShares(val);
 	}
+
+	// ----------------------------
+
+	@Override
+	public void setNofShares(KMMAcctID stockAcctID, FixedPointNumber val) throws TransactionSplitNotFoundException {
+		if ( stockAcctID == null ) {
+			throw new IllegalArgumentException("argument <stockAcctID> is null");
+		}
+		
+		if ( ! stockAcctID.isSet() ) {
+			throw new IllegalArgumentException("argument <stockAcctID> is not set");
+		}
+		
+		if ( val == null ) {
+			throw new IllegalArgumentException("argument <val> is null");
+		}
+		
+		if ( val.compareTo(FixedPointNumber.ZERO) <= 0 ) {
+			throw new IllegalArgumentException("argument <val> is <= 0");
+		}
+		
+		// ---
+		
+		setStockAcctID(stockAcctID);
+		setNofShares(val);
+	}
+
+	@Override
+	public void setNofShares(KMMAcctID stockAcctID, BigFraction val) throws TransactionSplitNotFoundException {
+		if ( stockAcctID == null ) {
+			throw new IllegalArgumentException("argument <stockAcctID> is null");
+		}
+		
+		if ( ! stockAcctID.isSet() ) {
+			throw new IllegalArgumentException("argument <stockAcctID> is not set");
+		}
+		
+		if ( val == null ) {
+			throw new IllegalArgumentException("argument <val> is null");
+		}
+		
+		if ( val.compareTo(BigFraction.ZERO) <= 0 ) {
+			throw new IllegalArgumentException("argument <val> is <= 0");
+		}
+		
+		// ---
+		
+		setStockAcctID(stockAcctID);
+		setNofShares(val);
+	}
+	
+	// ----------------------------
 
 	@Override
 	public void setPricePerShare(final FixedPointNumber amt) throws TransactionSplitNotFoundException {
@@ -315,10 +563,12 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 			throw new IllegalArgumentException("argument <amt> is <= 0");
 		}
 		
+		// ---
+		
+		getWritableStockAccountSplit().setPrice(amt);
+		
 		FixedPointNumber netPrc = getNofShares().multiply(amt);
-		FixedPointNumber feeTax = getFeesTaxes();
-		FixedPointNumber grossPrc = netPrc.copy().add(feeTax); // mutable
-		setGrossPrice(grossPrc);
+		getWritableStockAccountSplit().setValue(netPrc);
 	}
 
 	@Override
@@ -331,44 +581,290 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 			throw new IllegalArgumentException("argument <amt> is <= 0");
 		}
 		
+		// ---
+		
+		getWritableStockAccountSplit().setPrice(amt);
+		
 		BigFraction netPrc = getNofSharesRat().multiply(amt);
-		BigFraction feeTax = getFeesTaxesRat();
-		BigFraction grossPrc = netPrc.add(feeTax); // immutable
-		setGrossPrice(grossPrc);
+		getWritableStockAccountSplit().setValue(netPrc);
+	}
+	
+	// ----------------------------
+
+	@Override
+	public void setPricePerShare(KMMAcctID stockAcctID, FixedPointNumber amt) throws TransactionSplitNotFoundException {
+		if ( stockAcctID == null ) {
+			throw new IllegalArgumentException("argument <stockAcctID> is null");
+		}
+		
+		if ( ! stockAcctID.isSet() ) {
+			throw new IllegalArgumentException("argument <stockAcctID> is not set");
+		}
+		
+		if ( amt == null ) {
+			throw new IllegalArgumentException("argument <amt> is null");
+		}
+		
+		if ( amt.compareTo(FixedPointNumber.ZERO) <= 0 ) {
+			throw new IllegalArgumentException("argument <amt> is <= 0");
+		}
+		
+		// ---
+		
+		setStockAcctID(stockAcctID);
+		setPricePerShare(amt);
 	}
 
 	@Override
-	public void setGrossPrice(final FixedPointNumber amt) throws TransactionSplitNotFoundException {
+	public void setPricePerShare(KMMAcctID stockAcctID, BigFraction amt) throws TransactionSplitNotFoundException {
+		if ( stockAcctID == null ) {
+			throw new IllegalArgumentException("argument <stockAcctID> is null");
+		}
+		
+		if ( ! stockAcctID.isSet() ) {
+			throw new IllegalArgumentException("argument <stockAcctID> is not set");
+		}
+		
+		if ( amt == null ) {
+			throw new IllegalArgumentException("argument <amt> is null");
+		}
+		
+		if ( amt.compareTo(BigFraction.ZERO) <= 0 ) {
+			throw new IllegalArgumentException("argument <amt> is <= 0");
+		}
+		
+		// ---
+		
+		setStockAcctID(stockAcctID);
+		setPricePerShare(amt);
+	}
+
+	// ----------------------------
+
+	@Override
+	public void addFeeTax(KMMAcctID expAcctID, FixedPointNumber amt) throws TransactionSplitNotFoundException {
+		if ( expAcctID == null ) {
+			throw new IllegalArgumentException("argument <expAcctID> is null");
+		}
+		
+		if ( ! expAcctID.isSet() ) {
+			throw new IllegalArgumentException("argument <expAcctID> is not set");
+		}
+		
+		if ( amt == null ) {
+			throw new IllegalArgumentException("argument <amt> is null");
+		}
+		
+		if ( amt.equals(FixedPointNumber.ZERO) ) {
+			throw new IllegalArgumentException("argument <amt> is = 0");
+		}
+		
+		// ---
+		
+		KMyMoneyAccount expAcct = getKMyMoneyFile().getAccountByID(expAcctID);
+		if ( expAcct == null ) {
+			LOGGER.error("addFeeTax: " +
+					"Stock-buy transaction " + getID() + ": " +
+					"Could not find account with ID " + expAcctID);
+			throw new IllegalStateException("Could not find account with ID " + expAcctID);
+		}
+		
+		if ( expAcct.getType() != KMyMoneyAccount.Type.EXPENSE ) {
+			LOGGER.error("addFeeTax: " +
+						"Stock-buy transaction " + getID() + ": " +
+						"Account with ID " + expAcct.getID() + " is not of type " + KMyMoneyAccount.Type.EXPENSE);
+			throw new IllegalArgumentException("Account with ID " + expAcct.getID() + " is not of type " + KMyMoneyAccount.Type.EXPENSE);
+		}
+		
+		// ---
+
+		KMyMoneyWritableTransactionSplit expSplt = null;
+		for ( KMyMoneyWritableTransactionSplit splt : getWritableExpensesSplits() ) {
+			if ( splt.getAccountID().getStdID().equals( expAcctID ) ) {
+				expSplt = splt;
+				LOGGER.warn("addFeeTax: " +
+						"Stock-buy transaction " + getID() + ": " +
+						"Created new split for account " + expAcctID + ": " + splt.getID());
+				LOGGER.warn("addFeeTax: Will overwrite data");
+				break;
+			}
+		}
+		if ( expSplt == null ) {
+			expSplt = createWritableSplit(expAcct);
+			LOGGER.debug("addFeeTax: " +
+						"Stock-buy transaction " + getID() + ": " +
+						"Created new split for account " + expAcctID + ": " + expSplt.getID());
+		}
+		
+		expSplt.setShares(amt);
+		expSplt.setValue(amt);
+	}
+
+	@Override
+	public void addFeeTax(KMMAcctID expAcctID, BigFraction amt) throws TransactionSplitNotFoundException {
+		if ( expAcctID == null ) {
+			throw new IllegalArgumentException("argument <expAcctID> is null");
+		}
+		
+		if ( ! expAcctID.isSet() ) {
+			throw new IllegalArgumentException("argument <expAcctID> is not set");
+		}
+		
+		if ( amt == null ) {
+			throw new IllegalArgumentException("argument <amt> is null");
+		}
+		
+		if ( amt.equals(BigFraction.ZERO) ) {
+			throw new IllegalArgumentException("argument <amt> is = 0");
+		}
+		
+		// ---
+		
+		KMyMoneyAccount expAcct = getKMyMoneyFile().getAccountByID(expAcctID);
+		if ( expAcct == null ) {
+			LOGGER.error("addFeeTax: " +
+					"Stock-buy transaction " + getID() + ": " +
+					"Could not find account with ID " + expAcctID);
+			throw new IllegalStateException("Could not find account with ID " + expAcctID);
+		}
+		
+		if ( expAcct.getType() != KMyMoneyAccount.Type.EXPENSE ) {
+			LOGGER.error("addFeeTax: " +
+						"Stock-buy transaction " + getID() + ": " +
+						"Account with ID " + expAcct.getID() + " is not of type " + KMyMoneyAccount.Type.EXPENSE);
+			throw new IllegalArgumentException("Account with ID " + expAcct.getID() + " is not of type " + KMyMoneyAccount.Type.EXPENSE);
+		}
+		
+		// ---
+
+		KMyMoneyWritableTransactionSplit expSplt = null;
+		for ( KMyMoneyWritableTransactionSplit splt : getWritableExpensesSplits() ) {
+			if ( splt.getAccountID().getStdID().equals( expAcctID ) ) {
+				expSplt = splt;
+				LOGGER.warn("addFeeTax: " +
+						"Stock-buy transaction " + getID() + ": " +
+						"Created new split for account " + expAcctID + ": " + splt.getID());
+				LOGGER.warn("addFeeTax: Will overwrite data");
+				break;
+			}
+		}
+		if ( expSplt == null ) {
+			expSplt = createWritableSplit(expAcct);
+			LOGGER.debug("addFeeTax: " +
+						"Stock-buy transaction " + getID() + ": " +
+						"Created new split for account " + expAcctID + ": " + expSplt.getID());
+		}
+		
+		expSplt.setShares(amt);
+		expSplt.setValue(amt);
+	}
+
+	@Override
+	public void clearFeesTaxes() throws TransactionSplitNotFoundException {
+		for ( KMyMoneyWritableTransactionSplit splt : getWritableExpensesSplits() ) {
+			getKMyMoneyFile().removeTransactionSplit(splt);
+		}
+	}
+
+	// ----------------------------
+
+	@Override
+	public void setGrossPrice(FixedPointNumber amt) throws TransactionSplitNotFoundException {
 		if ( amt == null ) {
 			throw new IllegalArgumentException("argument <amt> is null");
 		}
 		
 		// CAUTION: < 0 is valid (adjustment posting)
-		if ( amt.equals(FixedPointNumber.ZERO) ) {
-			throw new IllegalArgumentException("argument <amt> is = 0");
+		if ( amt.compareTo(FixedPointNumber.ZERO) <= 0 ) {
+			throw new IllegalArgumentException("argument <amt> is <= 0");
 		}
+		
+		// ---
 		
 		FixedPointNumber amtNeg = amt.copy().negate(); // mutable
 		
 		getWritableOffsettingAccountSplit().setShares(amtNeg);
 		getWritableOffsettingAccountSplit().setValue(amtNeg);
 	}
-
+	
 	@Override
-	public void setGrossPrice(final BigFraction amt) throws TransactionSplitNotFoundException {
+	public void setGrossPrice(BigFraction amt) throws TransactionSplitNotFoundException	{
 		if ( amt == null ) {
 			throw new IllegalArgumentException("argument <amt> is null");
 		}
 		
 		// CAUTION: < 0 is valid (adjustment posting)
-		if ( amt.equals(BigFraction.ZERO) ) {
-			throw new IllegalArgumentException("argument <amt> is = 0");
+		if ( amt.compareTo(BigFraction.ZERO) <= 0 ) {
+			throw new IllegalArgumentException("argument <amt> is <= 0");
 		}
+		
+		// ---
 		
 		BigFraction amtNeg = amt.negate(); // immutable
 		
 		getWritableOffsettingAccountSplit().setShares(amtNeg);
 		getWritableOffsettingAccountSplit().setValue(amtNeg);
+	}
+
+	// ----------------------------
+
+	@Override
+	public void setGrossPrice(final KMMAcctID offsettingAcctID, final FixedPointNumber amt) throws TransactionSplitNotFoundException {
+		if ( offsettingAcctID == null ) {
+			throw new IllegalArgumentException("argument <offsettingAcctID> is null");
+		}
+		
+		if ( ! offsettingAcctID.isSet() ) {
+			throw new IllegalArgumentException("argument <offsettingAcctID> is not set");
+		}
+		
+		if ( amt == null ) {
+			throw new IllegalArgumentException("argument <amt> is null");
+		}
+		
+		// CAUTION: < 0 is valid (adjustment posting)
+		if ( amt.compareTo(FixedPointNumber.ZERO) <= 0 ) {
+			throw new IllegalArgumentException("argument <amt> is <= 0");
+		}
+		
+		// ---
+		
+		setOffsetttingAcctID(offsettingAcctID);
+		setGrossPrice(amt);
+	}
+
+	@Override
+	public void setGrossPrice(final KMMAcctID offsettingAcctID, final BigFraction amt) throws TransactionSplitNotFoundException {
+		if ( offsettingAcctID == null ) {
+			throw new IllegalArgumentException("argument <offsettingAcctID> is null");
+		}
+		
+		if ( ! offsettingAcctID.isSet() ) {
+			throw new IllegalArgumentException("argument <offsettingAcctID> is not set");
+		}
+		
+		if ( amt == null ) {
+			throw new IllegalArgumentException("argument <amt> is null");
+		}
+		
+		// CAUTION: < 0 is valid (adjustment posting)
+		if ( amt.compareTo(BigFraction.ZERO) <= 0 ) {
+			throw new IllegalArgumentException("argument <amt> is <= 0");
+		}
+		
+		// ---
+		
+		setOffsetttingAcctID(offsettingAcctID);
+		setGrossPrice(amt);
+	}
+
+	// ----------------------------
+	
+	@Override
+	public void refreshGrossPrice() throws TransactionSplitNotFoundException
+	{
+		FixedPointNumber grossPrc = getNetPrice_Var2().add( getFeesTaxes() ); // <-- important: Var2
+		setGrossPrice(grossPrc);
 	}
 
 	// ---------------------------------------------------------------
@@ -499,11 +995,11 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 			throw new TransactionValidationException(msg);
 		}
 		
-		if ( splt.getPrice().doubleValue() != 1.0 ) {
-			String msg = "the split's price is not valid";
-			LOGGER.error("validateStockAcctSplit: " + msg);
-			throw new TransactionValidationException(msg);
-		}
+//		if ( splt.getPrice().doubleValue() != 1.0 ) {
+//			String msg = "the split's price is not valid";
+//			LOGGER.error("validateStockAcctSplit: " + msg);
+//			throw new TransactionValidationException(msg);
+//		}
 		
 		if ( ! splt.getShares().equals( splt.getValue() ) ) {
 			String msg = "the split's shares is not equal to its value";
