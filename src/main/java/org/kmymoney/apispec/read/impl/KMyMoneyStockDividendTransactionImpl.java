@@ -12,6 +12,8 @@ import org.kmymoney.api.read.impl.KMyMoneyTransactionImpl;
 import org.kmymoney.api.read.impl.KMyMoneyTransactionSplitImpl;
 import org.kmymoney.apispec.read.KMyMoneyStockDividendTransaction;
 import org.kmymoney.base.basetypes.complex.KMMQualifSecCurrID;
+import org.kmymoney.base.basetypes.simple.KMMAcctID;
+import org.kmymoney.base.basetypes.simple.KMMSecID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,7 +116,7 @@ public class KMyMoneyStockDividendTransactionImpl extends KMyMoneyTransactionImp
 			try {
 				validateStockAcctSplit(splt);
 			} catch ( TransactionValidationException exc ) {
-				throw new IllegalArgumentException("argument <trx> does not meet the criteria for a stock-buy transaction");
+				throw new IllegalArgumentException("argument <trx> does not meet the criteria for a stock-dividend transaction");
 			} catch ( Exception exc ) {
 				throw new IllegalArgumentException("argument <trx>: something went wrong");
 			}
@@ -122,7 +124,7 @@ public class KMyMoneyStockDividendTransactionImpl extends KMyMoneyTransactionImp
 			try {
 				validateTaxesFeesAcctSplit(splt);
 			} catch ( TransactionValidationException exc ) {
-				throw new IllegalArgumentException("argument <trx> does not meet the criteria for a stock-buy transaction");
+				throw new IllegalArgumentException("argument <trx> does not meet the criteria for a stock-dividend transaction");
 			} catch ( Exception exc ) {
 				throw new IllegalArgumentException("argument <trx>: something went wrong");
 			}
@@ -130,7 +132,7 @@ public class KMyMoneyStockDividendTransactionImpl extends KMyMoneyTransactionImp
 			try {
 				validateOffsettingAcctSplit(splt);
 			} catch ( TransactionValidationException exc ) {
-				throw new IllegalArgumentException("argument <trx> does not meet the criteria for a stock-buy transaction");
+				throw new IllegalArgumentException("argument <trx> does not meet the criteria for a stock-dividend transaction");
 			} catch ( Exception exc ) {
 				throw new IllegalArgumentException("argument <trx>: something went wrong");
 			}
@@ -460,6 +462,17 @@ public class KMyMoneyStockDividendTransactionImpl extends KMyMoneyTransactionImp
 		return null;
 	}
 
+	@Override
+    public KMyMoneyTransactionSplit getExpensesSplit(KMMAcctID expAcctID)  throws TransactionSplitNotFoundException {
+    	for ( KMyMoneyTransactionSplit splt : getExpensesSplits() ) {
+    		if ( splt.getAccountID().getStdID().equals( expAcctID ) ) {
+    			return splt;
+    		}
+    	}
+    	
+    	throw new TransactionSplitNotFoundException();
+    }
+    
 	/**
 	 * {@inheritDoc}
 	 */
@@ -516,6 +529,28 @@ public class KMyMoneyStockDividendTransactionImpl extends KMyMoneyTransactionImp
 	public BigFraction getGrossDividendRat() throws TransactionSplitNotFoundException
 	{
 		return getIncomeAccountSplit().getValueRat().negate();
+	}
+
+	@Override
+	public FixedPointNumber getFeeTax(final KMMAcctID expAcctID) throws TransactionSplitNotFoundException {
+		for ( KMyMoneyTransactionSplit splt : getExpensesSplits() ) {
+			if ( splt.getAccountID().getStdID().equals( expAcctID ) ) {
+				return splt.getValue();
+			}
+		}
+		
+		throw new TransactionSplitNotFoundException();
+	}
+
+	@Override
+	public BigFraction getFeeTaxRat(final KMMAcctID expAcctID) throws TransactionSplitNotFoundException {
+		for ( KMyMoneyTransactionSplit splt : getExpensesSplits() ) {
+			if ( splt.getAccountID().getStdID().equals( expAcctID ) ) {
+				return splt.getValueRat();
+			}
+		}
+		
+		throw new TransactionSplitNotFoundException();
 	}
 
 	/**
@@ -650,8 +685,9 @@ public class KMyMoneyStockDividendTransactionImpl extends KMyMoneyTransactionImp
 			buffer.append("   o Stock acct split: ");
 			buffer.append("ID: " + getStockAccountSplit().getID() + ", ");
 			buffer.append("acct: " + getStockAccountSplit().getAccount().getQualifiedName() + ", ");
-			KMMQualifSecCurrID secID = getStockAccountSplit().getAccount().getQualifSecCurrID();
-			KMyMoneySecurity sec = getKMyMoneyFile().getSecurityByID(secID.getCode());
+			KMMQualifSecCurrID secCurrID = getStockAccountSplit().getAccount().getQualifSecCurrID();
+			KMMSecID secID = new KMMSecID(secCurrID.getCode());
+			KMyMoneySecurity sec = getKMyMoneyFile().getSecurityByID(secID);
 			buffer.append("sec: '" + sec.getName() + "', ");
 			buffer.append("no. of shares: " + getStockAccountSplit().getSharesFormatted() + "\n");
 		}

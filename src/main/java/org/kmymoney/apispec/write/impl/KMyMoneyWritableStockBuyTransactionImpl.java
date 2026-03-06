@@ -231,13 +231,15 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 		return getStockAccountSplit().getSharesRat();
 	}
 
+    // ----------------------------
+    
 	@Override
 	public FixedPointNumber getPricePerShare() throws TransactionSplitNotFoundException {
-		return getPricePerShare_Var2();
+		return getPricePerShare_Var3();
 	}
 
 	private FixedPointNumber getPricePerShare_Var1() throws TransactionSplitNotFoundException {
-		FixedPointNumber result = getNetPrice();
+		FixedPointNumber result = getNetPrice_Var1();
 		
 		result.divide( getNofShares() ); // mutable
 		
@@ -245,35 +247,59 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 	}
 
 	private FixedPointNumber getPricePerShare_Var2() throws TransactionSplitNotFoundException {
+		FixedPointNumber result = getNetPrice_Var3();
+		
+		result.divide( getNofShares() ); // mutable
+		
+		return result;
+	}
+
+	private FixedPointNumber getPricePerShare_Var3() throws TransactionSplitNotFoundException {
 		return getStockAccountSplit().getPrice();
 	}
 
 	@Override
 	public BigFraction getPricePerShareRat() throws TransactionSplitNotFoundException {
-    	BigFraction result = getNetPriceRat();
+		return getPricePerShareRat_Var3();
+	}
+
+	private BigFraction getPricePerShareRat_Var1() throws TransactionSplitNotFoundException {
+		BigFraction result = getNetPriceRat_Var1();
 		
-		result = result.divide( getNofSharesRat() ); // immutable
+		result.divide( getNofSharesRat() ); // immutable
 		
 		return result;
 	}
 
+	private BigFraction getPricePerShareRat_Var2() throws TransactionSplitNotFoundException {
+		BigFraction result = getNetPriceRat_Var3();
+		
+		result.divide( getNofSharesRat() ); // mutable
+		
+		return result;
+	}
+
+	private BigFraction getPricePerShareRat_Var3() throws TransactionSplitNotFoundException {
+		return getStockAccountSplit().getPriceRat();
+	}
+	
+    // ----------------------------
+    
 	@Override
 	public FixedPointNumber getNetPrice() throws TransactionSplitNotFoundException {
 		return getNetPrice_Var1();
 	}
 
 	private FixedPointNumber getNetPrice_Var1() throws TransactionSplitNotFoundException {
-		FixedPointNumber result = getGrossPrice();
-		
-		result.subtract( getFeesTaxes() ); // mutable
-		
-		return result;
+		return getGrossPrice().subtract( getFeesTaxes() );
 	}
 
 	private FixedPointNumber getNetPrice_Var2() throws TransactionSplitNotFoundException {
-		FixedPointNumber result = getNofShares().multiply( getPricePerShare() );
-		
-		return result;
+		return getNofShares().multiply( getPricePerShare() );
+	}
+
+	private FixedPointNumber getNetPrice_Var3() throws TransactionSplitNotFoundException {
+		return getStockAccountSplit().getValue();
 	}
 
 	@Override
@@ -282,19 +308,19 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 	}
 
 	private BigFraction getNetPriceRat_Var1() throws TransactionSplitNotFoundException {
-		BigFraction result = getGrossPriceRat();
-		
-		result = result.subtract( getFeesTaxesRat() ); // immutable
-		
-		return result;
+		return getGrossPriceRat().subtract( getFeesTaxesRat() );
 	}
 
 	private BigFraction getNetPriceRat_Var2() throws TransactionSplitNotFoundException {
-		BigFraction result = getNofSharesRat().multiply( getPricePerShareRat() );
-		
-		return result;
+		return getNofSharesRat().multiply( getPricePerShareRat() );
 	}
 
+	private BigFraction getNetPriceRat_Var3() throws TransactionSplitNotFoundException {
+		return getStockAccountSplit().getValueRat();
+	}
+
+    // ----------------------------
+    
 	@Override
 	public FixedPointNumber getFeeTax(final KMMAcctID expAcctID) throws TransactionSplitNotFoundException {
 		for ( KMyMoneyTransactionSplit splt : getExpensesSplits() ) {
@@ -475,7 +501,6 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 			throw new IllegalArgumentException("argument <val> is null");
 		}
 		
-		// CAUTION: < 0 is valid (adjustment posting)
 		if ( val.compareTo(FixedPointNumber.ZERO) <= 0 ) {
 			throw new IllegalArgumentException("argument <val> is <= 0");
 		}
@@ -491,7 +516,6 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 			throw new IllegalArgumentException("argument <val> is null");
 		}
 		
-		// CAUTION: < 0 is valid (adjustment posting)
 		if ( val.compareTo(BigFraction.ZERO) <= 0 ) {
 			throw new IllegalArgumentException("argument <val> is <= 0");
 		}
@@ -774,7 +798,6 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 			throw new IllegalArgumentException("argument <amt> is null");
 		}
 		
-		// CAUTION: < 0 is valid (adjustment posting)
 		if ( amt.compareTo(FixedPointNumber.ZERO) <= 0 ) {
 			throw new IllegalArgumentException("argument <amt> is <= 0");
 		}
@@ -786,14 +809,13 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 		getWritableOffsettingAccountSplit().setShares(amtNeg);
 		getWritableOffsettingAccountSplit().setValue(amtNeg);
 	}
-	
+
 	@Override
 	public void setGrossPrice(BigFraction amt) throws TransactionSplitNotFoundException	{
 		if ( amt == null ) {
 			throw new IllegalArgumentException("argument <amt> is null");
 		}
 		
-		// CAUTION: < 0 is valid (adjustment posting)
 		if ( amt.compareTo(BigFraction.ZERO) <= 0 ) {
 			throw new IllegalArgumentException("argument <amt> is <= 0");
 		}
@@ -822,7 +844,6 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 			throw new IllegalArgumentException("argument <amt> is null");
 		}
 		
-		// CAUTION: < 0 is valid (adjustment posting)
 		if ( amt.compareTo(FixedPointNumber.ZERO) <= 0 ) {
 			throw new IllegalArgumentException("argument <amt> is <= 0");
 		}
@@ -847,7 +868,6 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 			throw new IllegalArgumentException("argument <amt> is null");
 		}
 		
-		// CAUTION: < 0 is valid (adjustment posting)
 		if ( amt.compareTo(BigFraction.ZERO) <= 0 ) {
 			throw new IllegalArgumentException("argument <amt> is <= 0");
 		}

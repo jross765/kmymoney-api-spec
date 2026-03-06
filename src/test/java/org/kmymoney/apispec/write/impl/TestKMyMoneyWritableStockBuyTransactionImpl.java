@@ -176,7 +176,7 @@ public class TestKMyMoneyWritableStockBuyTransactionImpl {
 			specTrxRW.validate();
 			assertEquals(0, 1);
 		} catch ( Exception ext ) {
-			assertEquals(0, 0); // <-- not balanced
+			assertEquals(0, 0); // <-- trx is not balanced
 		}
 
 		// Either of both:
@@ -318,7 +318,7 @@ public class TestKMyMoneyWritableStockBuyTransactionImpl {
 			specTrxRW.validate();
 			assertEquals(0, 1);
 		} catch ( Exception ext ) {
-			assertEquals(0, 0); // <-- not balanced
+			assertEquals(0, 0); // <-- trx is not balanced
 		}
 
 		// Either of both:
@@ -453,17 +453,18 @@ public class TestKMyMoneyWritableStockBuyTransactionImpl {
 	// ----------------------------
 
 	private void test02_3_check_memory(KMyMoneyWritableStockBuyTransaction trx) throws Exception {
-		assertEquals(4, trx.getSplitsCount());
+		assertEquals(4, trx.getSplitsCount()); // changed
 		
 		assertEquals("S0003", trx.getStockAccountSplit().getID().toString());
-		assertEquals(2, trx.getExpensesSplits().size());
+		assertEquals(2, trx.getExpensesSplits().size()); // changed
 		assertEquals("S0002", trx.getExpensesSplits().get(0).getID().toString());
-		assertEquals("S0004", trx.getExpensesSplits().get(1).getID().toString());
+		assertEquals("S0004", trx.getExpensesSplits().get(1).getID().toString()); // new; note: ID predictable!
 		assertEquals("S0001", trx.getOffsettingAccountSplit().getID().toString());
 		
 		assertEquals(trx.getSplits().get(0).toString(), trx.getOffsettingAccountSplit().toString());
 		assertEquals(trx.getSplits().get(1).toString(), trx.getExpensesSplits().get(0).toString());
 		assertEquals(trx.getSplits().get(2).toString(), trx.getStockAccountSplit().toString());
+		assertEquals(trx.getSplits().get(3).toString(), trx.getExpensesSplits().get(1).toString()); // new
 		
 		// ---
 		
@@ -500,17 +501,18 @@ public class TestKMyMoneyWritableStockBuyTransactionImpl {
 		
 		// ---
 		
-		assertEquals(4, specTrxRO.getSplitsCount());
+		assertEquals(4, specTrxRO.getSplitsCount()); // changed
 		
 		assertEquals("S0003", specTrxRO.getStockAccountSplit().getID().toString());
-		assertEquals(2, specTrxRO.getExpensesSplits().size());
+		assertEquals(2, specTrxRO.getExpensesSplits().size()); // changed
 		assertEquals("S0002", specTrxRO.getExpensesSplits().get(0).getID().toString());
-		assertEquals("S0004", specTrxRO.getExpensesSplits().get(1).getID().toString());
+		assertEquals("S0004", specTrxRO.getExpensesSplits().get(1).getID().toString()); // new; note: ID predictable!
 		assertEquals("S0001", specTrxRO.getOffsettingAccountSplit().getID().toString());
 		
 		assertEquals(specTrxRO.getSplits().get(0).toString(), specTrxRO.getOffsettingAccountSplit().toString());
 		assertEquals(specTrxRO.getSplits().get(1).toString(), specTrxRO.getExpensesSplits().get(0).toString());
 		assertEquals(specTrxRO.getSplits().get(2).toString(), specTrxRO.getStockAccountSplit().toString());
+		assertEquals(specTrxRO.getSplits().get(3).toString(), specTrxRO.getExpensesSplits().get(1).toString()); // new
 		
 		// ---
 		

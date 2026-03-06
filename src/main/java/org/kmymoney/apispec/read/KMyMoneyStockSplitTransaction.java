@@ -11,7 +11,7 @@ public interface KMyMoneyStockSplitTransaction extends KMyMoneyTransaction,
 													   KMyMoneySpecialTransaction
 {
 
-	public KMyMoneyTransactionSplit getSplit() throws TransactionSplitNotFoundException;
+	KMyMoneyTransactionSplit getSplit() throws TransactionSplitNotFoundException;
 	
     // ---------------------------------------------------------------
     
