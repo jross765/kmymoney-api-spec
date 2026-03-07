@@ -1059,11 +1059,13 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 			throw new TransactionValidationException(msg);
 		}
 		
-		if ( splt.getPrice().doubleValue() != 1.0 ) {
-			String msg = "the split's price is not valid";
-			LOGGER.error("validateStockAcctSplit: " + msg);
-			throw new TransactionValidationException(msg);
-		}
+//		if ( splt.getPrice() != null ) {
+//			if ( splt.getPrice().doubleValue() != 1.0 ) {
+//				String msg = "the split's price is not valid";
+//				LOGGER.error("validateStockAcctSplit: " + msg);
+//				throw new TransactionValidationException(msg);
+//			}
+//		}
 		
 		if ( ! splt.getShares().equals( splt.getValue() ) ) {
 			String msg = "the split's shares is not equal to its value";
