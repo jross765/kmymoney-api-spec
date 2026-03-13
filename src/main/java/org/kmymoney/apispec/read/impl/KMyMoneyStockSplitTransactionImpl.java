@@ -103,7 +103,7 @@ public class KMyMoneyStockSplitTransactionImpl extends KMyMoneyTransactionImpl
 	}
 	
 	// ---------------------------------------------------------------
-	
+
     /**
      * {@inheritDoc}
      */
@@ -200,9 +200,23 @@ public class KMyMoneyStockSplitTransactionImpl extends KMyMoneyTransactionImpl
 		buffer.append(", memo='");
 		buffer.append(getMemo() + "'");
 
-		buffer.append(", split=");
+//		buffer.append(", split=");
+//		try {
+//			buffer.append(getSplit().getID());
+//		} catch (Exception e) {
+//			buffer.append("ERROR");
+//		}
+
+		buffer.append(", stock-acct=");
 		try {
-			buffer.append(getSplit().getID());
+			buffer.append(getSplit().getAccount().getID());
+		} catch (Exception e) {
+			buffer.append("ERROR");
+		}
+
+		buffer.append(", factor=");
+		try {
+			buffer.append(getSplitFactor());
 		} catch (Exception e) {
 			buffer.append("ERROR");
 		}
