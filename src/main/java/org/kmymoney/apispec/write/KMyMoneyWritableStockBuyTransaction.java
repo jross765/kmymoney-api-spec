@@ -42,26 +42,31 @@ public interface KMyMoneyWritableStockBuyTransaction extends KMyMoneyWritableTra
     
     // ----------------------------
     
+	@Deprecated
     void setNofShares(FixedPointNumber val)  throws TransactionSplitNotFoundException;
     
     void setNofShares(BigFraction val)  throws TransactionSplitNotFoundException;
     
+	@Deprecated
     void setNofShares(KMMAcctID stockAcctID, FixedPointNumber val)  throws TransactionSplitNotFoundException;
     
     void setNofShares(KMMAcctID stockAcctID, BigFraction val)  throws TransactionSplitNotFoundException;
     
     // ---
     
+	@Deprecated
     void setPricePerShare(FixedPointNumber amt)  throws TransactionSplitNotFoundException;
     
     void setPricePerShare(BigFraction amt)  throws TransactionSplitNotFoundException;
     
+	@Deprecated
     void setPricePerShare(KMMAcctID stockAcctID, FixedPointNumber amt)  throws TransactionSplitNotFoundException;
     
     void setPricePerShare(KMMAcctID stockAcctID, BigFraction amt)  throws TransactionSplitNotFoundException;
     
     // ----------------------------
     
+	@Deprecated
     void addFeeTax(KMMAcctID expAcctID, FixedPointNumber amt)  throws TransactionSplitNotFoundException;
     
     void addFeeTax(KMMAcctID expAcctID, BigFraction amt)  throws TransactionSplitNotFoundException;
@@ -72,10 +77,12 @@ public interface KMyMoneyWritableStockBuyTransaction extends KMyMoneyWritableTra
     
     // ----------------------------
     
+	@Deprecated
     void setGrossPrice(FixedPointNumber amt)  throws TransactionSplitNotFoundException;
     
     void setGrossPrice(BigFraction amt)  throws TransactionSplitNotFoundException;
     
+	@Deprecated
     void setGrossPrice(KMMAcctID offsettingAcctID, FixedPointNumber amt)  throws TransactionSplitNotFoundException;
     
     void setGrossPrice(KMMAcctID offsettingAcctID, BigFraction amt)  throws TransactionSplitNotFoundException;

@@ -35,6 +35,7 @@ public interface KMyMoneyWritableSimpleTransaction extends KMyMoneyWritableTrans
 
     // ---------------------------------------------------------------
     
+	@Deprecated
     void setAmount(FixedPointNumber amt) throws TransactionSplitNotFoundException;
 
     void setAmount(BigFraction amt) throws TransactionSplitNotFoundException;

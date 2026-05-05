@@ -22,14 +22,17 @@ public interface KMyMoneyWritableStockSplitTransaction extends KMyMoneyWritableT
 	
     // ---------------------------------------------------------------
     
+	@Deprecated
     void setSplitFactor(FixedPointNumber val)  throws TransactionSplitNotFoundException;
     
     void setSplitFactor(BigFraction val)  throws TransactionSplitNotFoundException;
     
+	@Deprecated
     void setNofAddShares(FixedPointNumber val)  throws TransactionSplitNotFoundException;
     
     void setNofAddShares(BigFraction val)  throws TransactionSplitNotFoundException;
     
+	@Deprecated
     void setNofSharesAfterSplit(FixedPointNumber val)  throws TransactionSplitNotFoundException;
     
     void setNofSharesAfterSplit(BigFraction val)  throws TransactionSplitNotFoundException;

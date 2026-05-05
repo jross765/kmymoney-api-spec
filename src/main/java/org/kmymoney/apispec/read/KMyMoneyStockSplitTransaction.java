@@ -15,18 +15,22 @@ public interface KMyMoneyStockSplitTransaction extends KMyMoneyTransaction,
 	
     // ---------------------------------------------------------------
     
+	@Deprecated
     FixedPointNumber getSplitFactor()  throws TransactionSplitNotFoundException;
     
     BigFraction      getSplitFactorRat()  throws TransactionSplitNotFoundException;
     
+	@Deprecated
     FixedPointNumber getNofAddShares()  throws TransactionSplitNotFoundException;
     
     BigFraction      getNofAddSharesRat()  throws TransactionSplitNotFoundException;
     
+	@Deprecated
     FixedPointNumber getNofSharesBeforeSplit()  throws TransactionSplitNotFoundException;
     
     BigFraction      getNofSharesBeforeSplitRat()  throws TransactionSplitNotFoundException;
     
+	@Deprecated
     FixedPointNumber getNofSharesAfterSplit()  throws TransactionSplitNotFoundException;
     
     BigFraction      getNofSharesAfterSplitRat()  throws TransactionSplitNotFoundException;

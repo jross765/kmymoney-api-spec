@@ -517,6 +517,7 @@ public class KMyMoneyStockDividendTransactionImpl extends KMyMoneyTransactionImp
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Deprecated
 	public FixedPointNumber getGrossDividend() throws TransactionSplitNotFoundException
 	{
 		return getIncomeAccountSplit().getValue().negate();
@@ -532,6 +533,7 @@ public class KMyMoneyStockDividendTransactionImpl extends KMyMoneyTransactionImp
 	}
 
 	@Override
+	@Deprecated
 	public FixedPointNumber getFeeTax(final KMMAcctID expAcctID) throws TransactionSplitNotFoundException {
 		for ( KMyMoneyTransactionSplit splt : getExpensesSplits() ) {
 			if ( splt.getAccountID().getStdID().equals( expAcctID ) ) {
@@ -557,6 +559,7 @@ public class KMyMoneyStockDividendTransactionImpl extends KMyMoneyTransactionImp
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Deprecated
 	public FixedPointNumber getFeesTaxes() throws TransactionSplitNotFoundException
 	{
 		FixedPointNumber result = FixedPointNumber.ZERO.copy(); // Caution: FPN is mutable!
@@ -587,6 +590,7 @@ public class KMyMoneyStockDividendTransactionImpl extends KMyMoneyTransactionImp
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Deprecated
 	public FixedPointNumber getNetDividend() throws TransactionSplitNotFoundException
 	{
 		FixedPointNumber result = getGrossDividend();

@@ -44,6 +44,7 @@ public interface KMyMoneySimpleTransaction extends KMyMoneyTransaction,
 
     // ---------------------------------------------------------------
     
+	@Deprecated
     FixedPointNumber getAmount() throws TransactionSplitNotFoundException;
     
     BigFraction      getAmountRat() throws TransactionSplitNotFoundException;

@@ -441,6 +441,7 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyTransactionImpl
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Deprecated
 	public FixedPointNumber getNofShares() throws TransactionSplitNotFoundException {
 		return getStockAccountSplit().getShares();
 	}
@@ -459,10 +460,12 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyTransactionImpl
 	 * {@inheritDoc}
 	 */
     @Override
+	@Deprecated
     public FixedPointNumber getPricePerShare()  throws TransactionSplitNotFoundException {
 		return getPricePerShare_Var1();
     }
     
+	@Deprecated
 	private FixedPointNumber getPricePerShare_Var1() throws TransactionSplitNotFoundException {
 		FixedPointNumber result = getNetPrice_Var1();
 		
@@ -471,6 +474,7 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyTransactionImpl
 		return result;
 	}
 
+	@Deprecated
 	private FixedPointNumber getPricePerShare_Var2() throws TransactionSplitNotFoundException {
 		FixedPointNumber result = getNetPrice_Var3();
 		
@@ -513,14 +517,17 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyTransactionImpl
 		return getNetPrice_Var1();
 	}
 
+	@Deprecated
 	private FixedPointNumber getNetPrice_Var1() throws TransactionSplitNotFoundException {
 		return getGrossPrice().subtract( getFeesTaxes() );
 	}
 
+	@Deprecated
 	private FixedPointNumber getNetPrice_Var2() throws TransactionSplitNotFoundException {
 		return getNofShares().multiply( getPricePerShare() );
 	}
 
+	@Deprecated
 	private FixedPointNumber getNetPrice_Var3() throws TransactionSplitNotFoundException {
 		return getStockAccountSplit().getValue();
 	}
@@ -548,6 +555,7 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyTransactionImpl
     // ----------------------------
 
 	@Override
+	@Deprecated
 	public FixedPointNumber getFeeTax(final KMMAcctID expAcctID) throws TransactionSplitNotFoundException {
 		for ( KMyMoneyTransactionSplit splt : getExpensesSplits() ) {
 			if ( splt.getAccountID().getStdID().equals( expAcctID ) ) {
@@ -573,6 +581,7 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyTransactionImpl
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Deprecated
 	public FixedPointNumber getFeesTaxes() throws TransactionSplitNotFoundException {
 		FixedPointNumber result = FixedPointNumber.ZERO.copy(); // Caution: FPN is mutable!
 		
@@ -601,6 +610,7 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyTransactionImpl
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Deprecated
 	public FixedPointNumber getGrossPrice() throws TransactionSplitNotFoundException {
 		return getOffsettingAccountSplit().getValue().negate(); // Notice: negate
 	}

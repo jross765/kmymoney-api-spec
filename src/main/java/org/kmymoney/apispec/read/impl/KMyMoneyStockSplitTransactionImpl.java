@@ -118,6 +118,7 @@ public class KMyMoneyStockSplitTransactionImpl extends KMyMoneyTransactionImpl
 	// ---------------------------------------------------------------
 	
 	@Override
+	@Deprecated
 	public FixedPointNumber getSplitFactor() throws TransactionSplitNotFoundException {
 		return getSplit().getShares();
 	}
@@ -128,6 +129,7 @@ public class KMyMoneyStockSplitTransactionImpl extends KMyMoneyTransactionImpl
 	}
 
 	@Override
+	@Deprecated
 	public FixedPointNumber getNofAddShares() throws TransactionSplitNotFoundException {
 		return getNofSharesAfterSplit().subtract( getNofSharesBeforeSplit() );
 	}
@@ -138,6 +140,7 @@ public class KMyMoneyStockSplitTransactionImpl extends KMyMoneyTransactionImpl
 	}
 	
 	@Override
+	@Deprecated
 	public FixedPointNumber getNofSharesBeforeSplit() throws TransactionSplitNotFoundException {
 		KMyMoneyAccount acct = getSplit().getAccount();
 		return acct.getBalance(getPreviousSplit());
@@ -150,6 +153,7 @@ public class KMyMoneyStockSplitTransactionImpl extends KMyMoneyTransactionImpl
 	}
 
 	@Override
+	@Deprecated
 	public FixedPointNumber getNofSharesAfterSplit() throws TransactionSplitNotFoundException {
 		// Altern. 1:
 		// KMyMoneyAccount acct = getSplit().getAccount();

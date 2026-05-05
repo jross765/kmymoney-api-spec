@@ -26,18 +26,22 @@ public interface KMyMoneyStockDividendTransaction extends KMyMoneyTransaction,
     
     // ---------------------------------------------------------------
     
+	@Deprecated
     FixedPointNumber getGrossDividend()  throws TransactionSplitNotFoundException;
     
     BigFraction      getGrossDividendRat()  throws TransactionSplitNotFoundException;
     
+	@Deprecated
     FixedPointNumber getFeeTax(KMMAcctID expAcctID)  throws TransactionSplitNotFoundException;
     
     BigFraction      getFeeTaxRat(KMMAcctID expAcctID)  throws TransactionSplitNotFoundException;
     
+	@Deprecated
     FixedPointNumber getFeesTaxes()  throws TransactionSplitNotFoundException;
     
     BigFraction      getFeesTaxesRat()  throws TransactionSplitNotFoundException;
     
+	@Deprecated
     FixedPointNumber getNetDividend()  throws TransactionSplitNotFoundException;
     
     BigFraction      getNetDividendRat()  throws TransactionSplitNotFoundException;

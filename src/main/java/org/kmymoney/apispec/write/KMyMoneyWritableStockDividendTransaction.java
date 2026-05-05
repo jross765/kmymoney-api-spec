@@ -44,12 +44,14 @@ public interface KMyMoneyWritableStockDividendTransaction extends KMyMoneyWritab
     
     // ----------------------------
     
+	@Deprecated
     void setGrossDividend(FixedPointNumber amt)  throws TransactionSplitNotFoundException;
     
     void setGrossDividend(BigFraction amt)  throws TransactionSplitNotFoundException;
     
     // ----------------------------
     
+	@Deprecated
     void addFeeTax(KMMAcctID expAcctID, FixedPointNumber amt)  throws TransactionSplitNotFoundException;
     
     void addFeeTax(KMMAcctID expAcctID, BigFraction amt)  throws TransactionSplitNotFoundException;
@@ -60,6 +62,7 @@ public interface KMyMoneyWritableStockDividendTransaction extends KMyMoneyWritab
     
     // ----------------------------
     
+	@Deprecated
     void setNetDividend(FixedPointNumber amt)  throws TransactionSplitNotFoundException;
     
     void setNetDividend(BigFraction amt)  throws TransactionSplitNotFoundException;

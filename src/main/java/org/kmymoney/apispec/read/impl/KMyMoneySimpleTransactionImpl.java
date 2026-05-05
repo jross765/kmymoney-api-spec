@@ -172,6 +172,7 @@ public class KMyMoneySimpleTransactionImpl extends KMyMoneyTransactionImpl
 
     // ---------------------------------------------------------------
     
+	@Deprecated
     public FixedPointNumber getAmount() throws TransactionSplitNotFoundException {
     	return getSecondSplit().getValue();
     }
