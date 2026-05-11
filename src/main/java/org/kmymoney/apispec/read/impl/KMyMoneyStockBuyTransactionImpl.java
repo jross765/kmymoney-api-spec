@@ -257,19 +257,19 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyTransactionImpl
 			throw new TransactionValidationException(msg);
 		}
 		
-		if ( splt.getShares().doubleValue() <= 0.0 ) {
+		if ( splt.getSharesRat().doubleValue() <= 0.0 ) {
 			String msg = "the split's shares is not valid";
 			LOGGER.error("validateStockAcctSplit: " + msg);
 			throw new TransactionValidationException(msg);
 		}
 		
-		if ( splt.getValue().doubleValue() <= 0.0 ) {
+		if ( splt.getValueRat().compareTo(BigFraction.ZERO) <= 0 ) {
 			String msg = "the split's value is not valid";
 			LOGGER.error("validateStockAcctSplit: " + msg);
 			throw new TransactionValidationException(msg);
 		}
 		
-		if ( splt.getPrice().doubleValue() <= 0.0 ) {
+		if ( splt.getPriceRat().compareTo(BigFraction.ZERO) <= 0 ) {
 			String msg = "the split's price is not valid";
 			LOGGER.error("validateStockAcctSplit: " + msg);
 			throw new TransactionValidationException(msg);
@@ -295,25 +295,25 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyTransactionImpl
 			throw new TransactionValidationException(msg);
 		}
 		
-		if ( splt.getShares().doubleValue() <= 0.0 ) {
+		if ( splt.getSharesRat().compareTo(BigFraction.ZERO) <= 0 ) {
 			String msg = "the split's shares is not valid";
 			LOGGER.error("validateTaxesFeesAcctSplit: " + msg);
 			throw new TransactionValidationException(msg);
 		}
 		
-		if ( splt.getValue().doubleValue() <= 0.0 ) {
+		if ( splt.getValueRat().compareTo(BigFraction.ZERO) <= 0 ) {
 			String msg = "the split's value is not valid";
 			LOGGER.error("validateTaxesFeesAcctSplit: " + msg);
 			throw new TransactionValidationException(msg);
 		}
 		
-//		if ( splt.getPrice().doubleValue() != 1.0 ) {
+//		if ( splt.getPriceRat().compareTo(BigFraction.ONE) != 0 ) {
 //			String msg = "the split's price is not valid";
 //			LOGGER.error("validateStockAcctSplit: " + msg);
 //			throw new TransactionValidationException(msg);
 //		}
 		
-		if ( ! splt.getShares().equals( splt.getValue() ) ) {
+		if ( ! splt.getSharesRat().equals( splt.getValueRat() ) ) {
 			String msg = "the split's shares is not equal to its value";
 			LOGGER.error("validateTaxesFeesAcctSplit: " + msg);
 			throw new TransactionValidationException(msg);
@@ -352,7 +352,7 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyTransactionImpl
 		}
 		
 //		if ( splt.getPrice() != null ) {
-//			if ( splt.getPrice().doubleValue() != 1.0 ) {
+//			if ( splt.getPrice().compareTo(BigFraction.ONE) != 0 ) {
 //				String msg = "the split's price is not valid";
 //				LOGGER.error("validateStockAcctSplit: " + msg);
 //				throw new TransactionValidationException(msg);
@@ -459,12 +459,12 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyTransactionImpl
 	/**
 	 * {@inheritDoc}
 	 */
-    @Override
+	@Override
 	@Deprecated
-    public FixedPointNumber getPricePerShare()  throws TransactionSplitNotFoundException {
+	public FixedPointNumber getPricePerShare()  throws TransactionSplitNotFoundException {
 		return getPricePerShare_Var1();
-    }
-    
+	}
+
 	@Deprecated
 	private FixedPointNumber getPricePerShare_Var1() throws TransactionSplitNotFoundException {
 		FixedPointNumber result = getNetPrice_Var1();
@@ -486,11 +486,11 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyTransactionImpl
 	/**
 	 * {@inheritDoc}
 	 */
-    @Override
-    public BigFraction getPricePerShareRat()  throws TransactionSplitNotFoundException {
+	@Override
+	public BigFraction getPricePerShareRat()  throws TransactionSplitNotFoundException {
 		return getPricePerShareRat_Var1();
-    }
-    
+	}
+
 	private BigFraction getPricePerShareRat_Var1() throws TransactionSplitNotFoundException {
 		BigFraction result = getNetPriceRat_Var1();
 		
@@ -513,6 +513,7 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyTransactionImpl
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Deprecated
 	public FixedPointNumber getNetPrice() throws TransactionSplitNotFoundException {
 		return getNetPrice_Var1();
 	}
@@ -696,7 +697,7 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyTransactionImpl
 			KMMSecID secID = new KMMSecID(secCurrID.getCode());
 			KMyMoneySecurity sec = getKMyMoneyFile().getSecurityByID(secID);
 			buffer.append("sec: '" + sec.getName() + "', ");
-			buffer.append("no. of shares: " + getStockAccountSplit().getSharesFormatted() + "\n");
+			buffer.append("nof-shares: " + getStockAccountSplit().getSharesFormatted() + "\n");
 		}
 		catch ( TransactionSplitNotFoundException e )
 		{
