@@ -13,55 +13,8 @@ This module provides specialized entities (classes) that are based on more gener
 * Under normal circumstances, you cannot compile it on its own (at least not without further preparation), but instead, you should clone it together with the other repos and use the parent repo's build-script.
 
 ## Major Changes
-### V. 0.2 &rarr; 0.3
-**Introduced:**
 
-(Nothing)
-
-**Improvements:**
-
-* `KMyMoney(Writable)StockBuyTransaction(Impl)`: Improvements (changed interface):
-
-    Added various methods to get and set data; now even better aligned to business perspective.
-
-* `KMyMoney(Writable)StockDividendTransaction(Impl)`: dto.
-
-* Fixed bugs
-
-* Better test coverage
-
-### V. 0.1 &rarr; 0.2
-**Introduced:**
-
-* `KMyMoney(Writable)StockDividendTransaction(Impl)`
-
-**Improvements:**
-
-* Added to the real added value of this module's classes: Added non-trivial special methods
-  and removed other ones (changed interface), now better aligned to business perspective.
-
-* Analogously, for the writable variants of theses classes, introduced various methods
-  to set data and removed other ones.
-
-* For all the above-mentioned new methods: The `BigFraction` variant, as well.
-
-* For all `KMyMoneyWritableXYZTransaction` classes: Proper test cases / data.
-  (Now they are all covered)
-
-* Overall: 
-    * Fixed bugs
-    * A few minor improvements here and there.
-
-### V. 0.1
-New.
-
-**Introduced:**
-
-* `KMyMoneySimpleTransaction` (includes code that used to be in module "API" and which does not belong there)
-
-* `KMyMoneyStockBuyTransaction`
-
-* `KMyMoneyStockSplitTransaction`
+Cf. document "[Major Changes](https://github.com/jross765/JKMyMoneyLibNTools/kmymoney-api-spec/major_changes.md)".
 
 ## Planned
 
