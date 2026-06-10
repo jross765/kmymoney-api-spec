@@ -13,7 +13,6 @@ import org.kmymoney.apispec.read.impl.KMyMoneyStockBuyTransactionImpl;
 import org.kmymoney.apispec.read.impl.KMyMoneyStockBuyTransactionImpl.SplitAccountType;
 import org.kmymoney.apispec.read.impl.TransactionValidationException;
 import org.kmymoney.apispec.write.KMyMoneyWritableStockBuyTransaction;
-import org.kmymoney.base.basetypes.complex.KMMComplAcctID;
 import org.kmymoney.base.basetypes.complex.KMMQualifSecCurrID;
 import org.kmymoney.base.basetypes.simple.KMMAcctID;
 import org.slf4j.Logger;
@@ -132,7 +131,7 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 	@Override
     	public KMyMoneyWritableTransactionSplit getWritableExpensesSplit(KMMAcctID expAcctID)  throws TransactionSplitNotFoundException {
     		for ( KMyMoneyWritableTransactionSplit splt : getWritableExpensesSplits() ) {
-    			if ( splt.getAccountID().getStdID().equals( expAcctID ) ) {
+    			if ( splt.getAccountID().equals( expAcctID ) ) {
     				return splt;
     			}
 	    	}
@@ -181,7 +180,7 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
     @Override
     public KMyMoneyTransactionSplit getExpensesSplit(KMMAcctID expAcctID)  throws TransactionSplitNotFoundException {
     	for ( KMyMoneyTransactionSplit splt : getExpensesSplits() ) {
-    		if ( splt.getAccountID().getStdID().equals( expAcctID ) ) {
+    		if ( splt.getAccountID().equals( expAcctID ) ) {
     			return splt;
     		}
     	}
@@ -334,7 +333,7 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
     @Deprecated
 	public FixedPointNumber getFeeTax(final KMMAcctID expAcctID) throws TransactionSplitNotFoundException {
 		for ( KMyMoneyTransactionSplit splt : getExpensesSplits() ) {
-			if ( splt.getAccountID().getStdID().equals( expAcctID ) ) {
+			if ( splt.getAccountID().equals( expAcctID ) ) {
 				return splt.getValue();
 			}
 		}
@@ -345,7 +344,7 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 	@Override
 	public BigFraction getFeeTaxRat(final KMMAcctID expAcctID) throws TransactionSplitNotFoundException {
 		for ( KMyMoneyTransactionSplit splt : getExpensesSplits() ) {
-			if ( splt.getAccountID().getStdID().equals( expAcctID ) ) {
+			if ( splt.getAccountID().equals( expAcctID ) ) {
 				return splt.getValueRat();
 			}
 		}
@@ -430,8 +429,8 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 		}
 		
 		boolean acctChange = false;
-		KMMComplAcctID oldAcctID = getStockAccountSplit().getAccountID();
-		if ( ! oldAcctID.equals( stockAcct.getID() ) ) {
+		KMMAcctID oldAcctID = getStockAccountSplit().getAccountID();
+		if ( ! oldAcctID.equals( stockAcct.getID().getStdID() ) ) {
 			acctChange = true;
 		}
 		if ( acctChange ) {
@@ -490,8 +489,8 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 		}
 		
 		boolean acctChange = false;
-		KMMComplAcctID oldAcctID = getStockAccountSplit().getAccountID();
-		if ( ! oldAcctID.equals( offsettingAcct.getID() ) ) {
+		KMMAcctID oldAcctID = getStockAccountSplit().getAccountID();
+		if ( ! oldAcctID.equals( offsettingAcct.getID().getStdID() ) ) {
 			acctChange = true;
 		}
 		if ( acctChange ) {
@@ -720,7 +719,7 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 
 		KMyMoneyWritableTransactionSplit expSplt = null;
 		for ( KMyMoneyWritableTransactionSplit splt : getWritableExpensesSplits() ) {
-			if ( splt.getAccountID().getStdID().equals( expAcctID ) ) {
+			if ( splt.getAccountID().equals( expAcctID ) ) {
 				expSplt = splt;
 				LOGGER.warn("addFeeTax: " +
 						"Stock-buy transaction " + getID() + ": " +
@@ -779,7 +778,7 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 
 		KMyMoneyWritableTransactionSplit expSplt = null;
 		for ( KMyMoneyWritableTransactionSplit splt : getWritableExpensesSplits() ) {
-			if ( splt.getAccountID().getStdID().equals( expAcctID ) ) {
+			if ( splt.getAccountID().equals( expAcctID ) ) {
 				expSplt = splt;
 				LOGGER.warn("addFeeTax: " +
 						"Stock-buy transaction " + getID() + ": " +
@@ -802,7 +801,7 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableTra
 	@Override
 	public void clearFeesTaxes() throws TransactionSplitNotFoundException {
 		for ( KMyMoneyWritableTransactionSplit splt : getWritableExpensesSplits() ) {
-			getKMyMoneyFile().removeTransactionSplit(splt);
+			getWritableKMyMoneyFile().removeTransactionSplit(splt);
 		}
 	}
 

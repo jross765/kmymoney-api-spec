@@ -150,7 +150,7 @@ public class KMyMoneyWritableStockDividendTransactionImpl extends KMyMoneyWritab
 	@Override
     public KMyMoneyWritableTransactionSplit getWritableExpensesSplit(KMMAcctID expAcctID)  throws TransactionSplitNotFoundException {
     	for ( KMyMoneyWritableTransactionSplit splt : getWritableExpensesSplits() ) {
-    		if ( splt.getAccountID().getStdID().equals( expAcctID ) ) {
+    		if ( splt.getAccountID().equals( expAcctID ) ) {
     			return splt;
     		}
     	}
@@ -284,7 +284,7 @@ public class KMyMoneyWritableStockDividendTransactionImpl extends KMyMoneyWritab
 	@Override
 	public FixedPointNumber getFeeTax(final KMMAcctID expAcctID) throws TransactionSplitNotFoundException {
 		for ( KMyMoneyTransactionSplit splt : getExpensesSplits() ) {
-			if ( splt.getAccountID().getStdID().equals( expAcctID ) ) {
+			if ( splt.getAccountID().equals( expAcctID ) ) {
 				return splt.getValue();
 			}
 		}
@@ -295,7 +295,7 @@ public class KMyMoneyWritableStockDividendTransactionImpl extends KMyMoneyWritab
 	@Override
 	public BigFraction getFeeTaxRat(final KMMAcctID expAcctID) throws TransactionSplitNotFoundException {
 		for ( KMyMoneyTransactionSplit splt : getExpensesSplits() ) {
-			if ( splt.getAccountID().getStdID().equals( expAcctID ) ) {
+			if ( splt.getAccountID().equals( expAcctID ) ) {
 				return splt.getValueRat();
 			}
 		}
@@ -386,7 +386,7 @@ public class KMyMoneyWritableStockDividendTransactionImpl extends KMyMoneyWritab
 		}
 		
 		boolean acctChange = false;
-		KMMAcctID oldAcctID = getStockAccountSplit().getAccountID().getStdID();
+		KMMAcctID oldAcctID = getStockAccountSplit().getAccountID();
 		if ( ! oldAcctID.equals( stockAcct.getID() ) ) {
 			acctChange = true;
 		}
@@ -446,7 +446,7 @@ public class KMyMoneyWritableStockDividendTransactionImpl extends KMyMoneyWritab
 		}
 		
 		boolean acctChange = false;
-		KMMAcctID oldAcctID = getStockAccountSplit().getAccountID().getStdID();
+		KMMAcctID oldAcctID = getStockAccountSplit().getAccountID();
 		if ( ! oldAcctID.equals( offsettingAcct.getID() ) ) {
 			acctChange = true;
 		}
@@ -628,7 +628,7 @@ public class KMyMoneyWritableStockDividendTransactionImpl extends KMyMoneyWritab
 	@Override
 	public void clearFeesTaxes() throws TransactionSplitNotFoundException {
 		for ( KMyMoneyWritableTransactionSplit splt : getWritableExpensesSplits() ) {
-			getKMyMoneyFile().removeTransactionSplit(splt);
+			getWritableKMyMoneyFile().removeTransactionSplit(splt);
 		}
 	}
 

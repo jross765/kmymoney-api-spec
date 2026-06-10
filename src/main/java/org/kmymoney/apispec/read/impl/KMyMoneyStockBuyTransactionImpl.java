@@ -389,7 +389,7 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyTransactionImpl
 	@Override
     public KMyMoneyTransactionSplit getExpensesSplit(KMMAcctID expAcctID)  throws TransactionSplitNotFoundException {
     	for ( KMyMoneyTransactionSplit splt : getExpensesSplits() ) {
-    		if ( splt.getAccountID().getStdID().equals( expAcctID ) ) {
+    		if ( splt.getAccountID().equals( expAcctID ) ) {
     			return splt;
     		}
     	}
@@ -559,7 +559,7 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyTransactionImpl
 	@Deprecated
 	public FixedPointNumber getFeeTax(final KMMAcctID expAcctID) throws TransactionSplitNotFoundException {
 		for ( KMyMoneyTransactionSplit splt : getExpensesSplits() ) {
-			if ( splt.getAccountID().getStdID().equals( expAcctID ) ) {
+			if ( splt.getAccountID().equals( expAcctID ) ) {
 				return splt.getValue();
 			}
 		}
@@ -570,7 +570,7 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyTransactionImpl
 	@Override
 	public BigFraction getFeeTaxRat(final KMMAcctID expAcctID) throws TransactionSplitNotFoundException {
 		for ( KMyMoneyTransactionSplit splt : getExpensesSplits() ) {
-			if ( splt.getAccountID().getStdID().equals( expAcctID ) ) {
+			if ( splt.getAccountID().equals( expAcctID ) ) {
 				return splt.getValueRat();
 			}
 		}
