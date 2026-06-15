@@ -7,7 +7,7 @@ import org.kmymoney.apispec.read.KMyMoneySimpleTransaction;
  * 
  * @see KMyMoneySimpleTransaction
  */
-public interface KMyMoneyWritableStockBuyTransaction extends KMyMoneyWritableStockBuySellTransaction
+public interface KMyMoneyWritableStockSellTransaction extends KMyMoneyWritableStockBuySellTransaction
 {
 
     // ::EMPTY

@@ -22,7 +22,7 @@ import org.kmymoney.api.write.impl.KMyMoneyWritableTransactionImpl;
 import org.kmymoney.apispec.ConstTest;
 import org.kmymoney.apispec.read.impl.KMyMoneyStockBuyTransactionImpl;
 import org.kmymoney.apispec.read.impl.TestKMyMoneyStockBuyTransactionImpl;
-import org.kmymoney.apispec.write.KMyMoneyWritableStockBuyTransaction;
+import org.kmymoney.apispec.write.KMyMoneyWritableStockBuySellTransaction;
 import org.kmymoney.base.basetypes.simple.KMMAcctID;
 import org.kmymoney.base.basetypes.simple.KMMTrxID;
 
@@ -101,7 +101,7 @@ public class TestKMyMoneyWritableStockBuyTransactionImpl {
 		assertEquals(TRX_1_ID, genTrx.getID());
 		
 		KMyMoneyStockBuyTransactionImpl roSpecTrx = new KMyMoneyStockBuyTransactionImpl((KMyMoneyTransactionImpl) genTrx);
-		KMyMoneyWritableStockBuyTransaction specTrx = new KMyMoneyWritableStockBuyTransactionImpl(roSpecTrx);
+		KMyMoneyWritableStockBuySellTransaction specTrx = new KMyMoneyWritableStockBuySellTransactionImpl(roSpecTrx);
 		assertNotEquals(null, specTrx);
 		
 		assertEquals(3, specTrx.getSplitsCount());
@@ -162,7 +162,7 @@ public class TestKMyMoneyWritableStockBuyTransactionImpl {
 		assertNotEquals(null, specTrxRO);
 		assertEquals(TRX_1_ID, specTrxRO.getID());
 
-		KMyMoneyWritableStockBuyTransaction specTrxRW = new KMyMoneyWritableStockBuyTransactionImpl(specTrxRO);
+		KMyMoneyWritableStockBuySellTransaction specTrxRW = new KMyMoneyWritableStockBuySellTransactionImpl(specTrxRO);
 		assertNotEquals(null, specTrxRW);
 		assertEquals(TRX_1_ID, specTrxRW.getID());
 		
@@ -222,7 +222,7 @@ public class TestKMyMoneyWritableStockBuyTransactionImpl {
 		assertNotEquals(null, specTrxRO);
 		assertEquals(TRX_1_ID, specTrxRO.getID());
 
-		KMyMoneyWritableStockBuyTransaction specTrxRW = new KMyMoneyWritableStockBuyTransactionImpl(specTrxRO);
+		KMyMoneyWritableStockBuySellTransaction specTrxRW = new KMyMoneyWritableStockBuySellTransactionImpl(specTrxRO);
 		assertNotEquals(null, specTrxRW);
 		assertEquals(TRX_1_ID, specTrxRW.getID());
 		
@@ -304,7 +304,7 @@ public class TestKMyMoneyWritableStockBuyTransactionImpl {
 		assertNotEquals(null, specTrxRO);
 		assertEquals(TRX_1_ID, specTrxRO.getID());
 
-		KMyMoneyWritableStockBuyTransaction specTrxRW = new KMyMoneyWritableStockBuyTransactionImpl(specTrxRO);
+		KMyMoneyWritableStockBuySellTransaction specTrxRW = new KMyMoneyWritableStockBuySellTransactionImpl(specTrxRO);
 		assertNotEquals(null, specTrxRW);
 		assertEquals(TRX_1_ID, specTrxRW.getID());
 		
@@ -371,7 +371,7 @@ public class TestKMyMoneyWritableStockBuyTransactionImpl {
 
 	// ---------------------------------------------------------------
 
-	private void test02_1_check_memory(KMyMoneyWritableStockBuyTransaction trx) throws Exception {
+	private void test02_1_check_memory(KMyMoneyWritableStockBuySellTransaction trx) throws Exception {
 		assertEquals(3, trx.getSplitsCount());
 		
 		assertEquals("S0003", trx.getStockAccountSplit().getID().toString());
@@ -452,7 +452,7 @@ public class TestKMyMoneyWritableStockBuyTransactionImpl {
 
 	// ----------------------------
 
-	private void test02_3_check_memory(KMyMoneyWritableStockBuyTransaction trx) throws Exception {
+	private void test02_3_check_memory(KMyMoneyWritableStockBuySellTransaction trx) throws Exception {
 		assertEquals(4, trx.getSplitsCount()); // changed
 		
 		assertEquals("S0003", trx.getStockAccountSplit().getID().toString());

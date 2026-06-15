@@ -4,7 +4,7 @@ import org.apache.commons.numbers.fraction.BigFraction;
 import org.kmymoney.api.read.KMyMoneyTransaction;
 import org.kmymoney.api.read.KMyMoneyTransactionSplit;
 import org.kmymoney.api.read.impl.KMyMoneyTransactionImpl;
-import org.kmymoney.apispec.read.KMyMoneyStockBuyTransaction;
+import org.kmymoney.apispec.read.KMyMoneyStockSellTransaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,19 +13,19 @@ import org.slf4j.LoggerFactory;
  * 
  * @see KMyMoneyTransaction
  */
-public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyStockBuySellTransactionImpl
-                                             implements KMyMoneyStockBuyTransaction
+public class KMyMoneyStockSellTransactionImpl extends KMyMoneyStockBuySellTransactionImpl
+                                              implements KMyMoneyStockSellTransaction
 {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(KMyMoneyStockBuyTransactionImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(KMyMoneyStockSellTransactionImpl.class);
 
 	// ---------------------------------------------------------------
     
-	public KMyMoneyStockBuyTransactionImpl(final KMyMoneyTransactionImpl trx) {
+	public KMyMoneyStockSellTransactionImpl(final KMyMoneyTransactionImpl trx) {
 		super( trx );
 	}
 
-	public KMyMoneyStockBuyTransactionImpl(final KMyMoneyStockBuyTransactionImpl trx) {
+	public KMyMoneyStockSellTransactionImpl(final KMyMoneyStockBuyTransactionImpl trx) {
 		super(trx);
 		
 //		init();
@@ -45,13 +45,13 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyStockBuySellTransac
 	protected void validateStockAcctSplit(final KMyMoneyTransactionSplit splt) throws TransactionValidationException {
 		super.validateStockAcctSplit(splt);
 
-		if ( splt.getSharesRat().compareTo(BigFraction.ZERO) <= 0 ) {
+		if ( splt.getSharesRat().compareTo(BigFraction.ZERO) >= 0 ) { // sic
 			String msg = "the split's shares is not valid";
 			LOGGER.error("validateStockAcctSplit (2): " + msg);
 			throw new TransactionValidationException(msg);
 		}
 		
-		if ( splt.getValueRat().compareTo(BigFraction.ZERO) <= 0 ) {
+		if ( splt.getValueRat().compareTo(BigFraction.ZERO) >= 0 ) { // sic
 			String msg = "the split's value is not valid";
 			LOGGER.error("validateStockAcctSplit (2): " + msg);
 			throw new TransactionValidationException(msg);
@@ -62,13 +62,13 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyStockBuySellTransac
 	protected void validateOffsettingAcctSplit(final KMyMoneyTransactionSplit splt) throws TransactionValidationException {
 		super.validateOffsettingAcctSplit(splt);
 		
-		if ( splt.getSharesRat().compareTo(BigFraction.ZERO) >= 0 ) {
+		if ( splt.getSharesRat().compareTo(BigFraction.ZERO) <= 0 ) { // sic
 			String msg = "the split's shares is not valid";
 			LOGGER.error("validateOffsettingAcctSplit (2): " + msg);
 			throw new TransactionValidationException(msg);
 		}
 		
-		if ( splt.getValueRat().compareTo(BigFraction.ZERO) >= 0 ) {
+		if ( splt.getValueRat().compareTo(BigFraction.ZERO) <= 0 ) { // sic
 			String msg = "the split's value is not valid";
 			LOGGER.error("validateOffsettingAcctSplit (2): " + msg);
 			throw new TransactionValidationException(msg);
