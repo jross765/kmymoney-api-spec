@@ -75,4 +75,19 @@ public class KMyMoneyStockBuyTransactionImpl extends KMyMoneyStockBuySellTransac
 		}
 	}
 	
+	// ---------------------------------------------------------------
+	
+	@Override
+	public String toString() {
+		String result = super.toString();
+		result = result.replaceAll( "KMyMoneyStockBuySellTransactionImpl", "KMyMoneyStockBuyTransactionImpl" );
+		return result;
+	}
+
+	public String toStringHuman() {
+		String result = super.toStringHuman();
+		result = result.replaceAll( "Stock-buy-sell", "Stock-buy" );
+		return result;
+	}
+
 }

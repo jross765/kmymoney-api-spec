@@ -33,7 +33,7 @@ public class KMyMoneyStockSellTransactionImpl extends KMyMoneyStockBuySellTransa
 //		try {
 //			validate();
 //		} catch ( TransactionValidationException exc ) {
-//			throw new IllegalArgumentException("argument <trx> does not meet the criteria for a stock-buy transaction");
+//			throw new IllegalArgumentException("argument <trx> does not meet the criteria for a stock-sell transaction");
 //		} catch ( Exception exc ) {
 //			throw new IllegalArgumentException("argument <trx>: something went wrong");
 //		}
@@ -75,4 +75,19 @@ public class KMyMoneyStockSellTransactionImpl extends KMyMoneyStockBuySellTransa
 		}
 	}
 	
+	// ---------------------------------------------------------------
+	
+	@Override
+	public String toString() {
+		String result = super.toString();
+		result = result.replaceAll( "KMyMoneyStockBuySellTransactionImpl", "KMyMoneyStockSellTransactionImpl" );
+		return result;
+	}
+
+	public String toStringHuman() {
+		String result = super.toStringHuman();
+		result = result.replaceAll( "Stock-buy-sell", "Stock-sell" );
+		return result;
+	}
+
 }

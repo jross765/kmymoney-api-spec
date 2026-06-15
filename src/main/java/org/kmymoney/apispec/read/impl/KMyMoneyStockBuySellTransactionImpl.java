@@ -229,8 +229,8 @@ public class KMyMoneyStockBuySellTransactionImpl extends KMyMoneyTransactionImpl
 
 		// ---
 		
-		if ( getBalance().doubleValue() != 0.0 ) {
-			String msg = "Trx ID :" + getID() + ": Transaction is not balanced: " + getBalance();
+		if ( getBalanceRat().compareTo(BigFraction.ZERO) != 0 ) {
+			String msg = "Trx ID :" + getID() + ": Transaction is not balanced: " + getBalanceFormatted();
 			LOGGER.error("validate: " + msg);
 			throw new TransactionValidationException(msg);
 		}
@@ -365,7 +365,7 @@ public class KMyMoneyStockBuySellTransactionImpl extends KMyMoneyTransactionImpl
 //			}
 //		}
 		
-		if ( ! splt.getShares().equals( splt.getValue() ) ) {
+		if ( ! splt.getSharesRat().equals( splt.getValueRat() ) ) {
 			String msg = "the split's shares is not equal to its value";
 			LOGGER.error("validateOffsettingAcctSplit: " + msg);
 			throw new TransactionValidationException(msg);
@@ -635,7 +635,7 @@ public class KMyMoneyStockBuySellTransactionImpl extends KMyMoneyTransactionImpl
 	@Override
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("KMyMoneyStockBuyTransactionImpl [");
+		buffer.append("KMyMoneyStockBuySellTransactionImpl [");
 
 		buffer.append("id=");
 		buffer.append(getID());
@@ -688,7 +688,7 @@ public class KMyMoneyStockBuySellTransactionImpl extends KMyMoneyTransactionImpl
 
 	public String toStringHuman() {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("Stock-buy transaction:\n");
+		buffer.append("Stock-buy-sell transaction:\n");
 
 		buffer.append(" - ID: ");
 		buffer.append(getID() + "\n");

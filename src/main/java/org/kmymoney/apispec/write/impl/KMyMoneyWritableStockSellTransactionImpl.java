@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  * @see KMyMoneySimpleTransactionImpl
  */
 public class KMyMoneyWritableStockSellTransactionImpl extends KMyMoneyWritableStockBuySellTransactionImpl 
-                                                     implements KMyMoneyWritableStockSellTransaction
+                                                      implements KMyMoneyWritableStockSellTransaction
 {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(KMyMoneyWritableStockSellTransactionImpl.class);
@@ -30,7 +30,7 @@ public class KMyMoneyWritableStockSellTransactionImpl extends KMyMoneyWritableSt
 //		try {
 //			validate();
 //		} catch ( TransactionValidationException exc ) {
-//			throw new IllegalArgumentException("argument <trx> does not meet the criteria for a stock-buy transaction");
+//			throw new IllegalArgumentException("argument <trx> does not meet the criteria for a stock-sell transaction");
 //		} catch ( Exception exc ) {
 //			throw new IllegalArgumentException("argument <trx>: something went wrong");
 //		}
@@ -44,7 +44,7 @@ public class KMyMoneyWritableStockSellTransactionImpl extends KMyMoneyWritableSt
 //		try {
 //			validate();
 //		} catch ( TransactionValidationException exc ) {
-//			throw new IllegalArgumentException("argument <trx> does not meet the criteria for a stock-buy transaction");
+//			throw new IllegalArgumentException("argument <trx> does not meet the criteria for a stock-sell transaction");
 //		} catch ( Exception exc ) {
 //			throw new IllegalArgumentException("argument <trx>: something went wrong");
 //		}
@@ -86,4 +86,13 @@ public class KMyMoneyWritableStockSellTransactionImpl extends KMyMoneyWritableSt
 		}
 	}
 	
+	// ---------------------------------------------------------------
+	
+	@Override
+	public String toString() {
+		String result = super.toString();
+		result = result.replaceAll( "KMyMoneyWritableStockBuySellTransactionImpl", "KMyMoneyWritableStockSellTransactionImpl" );
+		return result;
+	}
+
 }

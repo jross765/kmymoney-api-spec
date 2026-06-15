@@ -106,7 +106,7 @@ public class KMyMoneyWritableStockBuySellTransactionImpl extends KMyMoneyWritabl
 
     // ---------------------------------------------------------------
     
-	// ::TODO: Redundant to GnuCashStockBuyTransactionImpl.init()
+	// ::TODO: Redundant to KMyMoneyStockBuyTransactionImpl.init()
     protected void init() {
 	    splitCounter = new int[SplitAccountType.values().length];
 	    
@@ -645,6 +645,7 @@ public class KMyMoneyWritableStockBuySellTransactionImpl extends KMyMoneyWritabl
 	// ----------------------------
 
 	@Override
+    @Deprecated
 	public void setPricePerShare(KMMAcctID stockAcctID, FixedPointNumber amt) throws TransactionSplitNotFoundException {
 		if ( stockAcctID == null ) {
 			throw new IllegalArgumentException("argument <stockAcctID> is null");
@@ -1114,7 +1115,7 @@ public class KMyMoneyWritableStockBuySellTransactionImpl extends KMyMoneyWritabl
     @Override
     public String toString() {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("KMyMoneyWritableStockBuyTransactionImpl [");
+		buffer.append("KMyMoneyWritableStockBuySellTransactionImpl [");
 
 		buffer.append("id=");
 		buffer.append(getID());

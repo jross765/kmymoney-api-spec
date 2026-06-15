@@ -86,4 +86,13 @@ public class KMyMoneyWritableStockBuyTransactionImpl extends KMyMoneyWritableSto
 		}
 	}
 	
+	// ---------------------------------------------------------------
+	
+	@Override
+	public String toString() {
+		String result = super.toString();
+		result = result.replaceAll( "KMyMoneyWritableStockBuySellTransactionImpl", "KMyMoneyWritableStockBuyTransactionImpl" );
+		return result;
+	}
+
 }
