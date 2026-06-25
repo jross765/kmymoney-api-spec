@@ -24,32 +24,32 @@ public interface KMyMoneyStockBuySellTransaction extends KMyMoneyTransaction,
     
     // ---------------------------------------------------------------
     
-	@Deprecated
+    @Deprecated
     FixedPointNumber getNofShares()  throws TransactionSplitNotFoundException;
     
     BigFraction      getNofSharesRat()  throws TransactionSplitNotFoundException;
     
-	@Deprecated
+    @Deprecated
     FixedPointNumber getPricePerShare()  throws TransactionSplitNotFoundException;
     
     BigFraction      getPricePerShareRat()  throws TransactionSplitNotFoundException;
     
-	@Deprecated
+    @Deprecated
     FixedPointNumber getNetPrice()  throws TransactionSplitNotFoundException;
     
     BigFraction      getNetPriceRat()  throws TransactionSplitNotFoundException;
     
-	@Deprecated
+    @Deprecated
     FixedPointNumber getFeeTax(KMMAcctID expAcctID)  throws TransactionSplitNotFoundException;
     
     BigFraction      getFeeTaxRat(KMMAcctID expAcctID)  throws TransactionSplitNotFoundException;
     
-	@Deprecated
+    @Deprecated
     FixedPointNumber getFeesTaxes()  throws TransactionSplitNotFoundException;
     
     BigFraction      getFeesTaxesRat()  throws TransactionSplitNotFoundException;
     
-	@Deprecated
+    @Deprecated
     FixedPointNumber getGrossPrice()  throws TransactionSplitNotFoundException;
     
     BigFraction      getGrossPriceRat()  throws TransactionSplitNotFoundException;

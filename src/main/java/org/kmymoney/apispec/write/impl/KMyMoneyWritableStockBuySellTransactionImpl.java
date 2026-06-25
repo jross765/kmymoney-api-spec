@@ -106,7 +106,7 @@ public class KMyMoneyWritableStockBuySellTransactionImpl extends KMyMoneyWritabl
 
     // ---------------------------------------------------------------
     
-	// ::TODO: Redundant to KMyMoneyStockBuyTransactionImpl.init()
+    // ::TODO: Redundant to KMyMoneyStockBuyTransactionImpl.init()
     protected void init() {
 	    splitCounter = new int[SplitAccountType.values().length];
 	    
@@ -225,7 +225,8 @@ public class KMyMoneyWritableStockBuySellTransactionImpl extends KMyMoneyWritabl
     		throw new TransactionSplitNotFoundException();
 	
 		for ( KMyMoneyTransactionSplit splt : getSplits() ) {
-			if ( splt.getAccount().getType() == KMyMoneyAccount.Type.CHECKING ) {
+			if ( splt.getAccount().getType() == KMyMoneyAccount.Type.CHECKING ||
+				 splt.getAccount().getType() == KMyMoneyAccount.Type.ASSET ) {
 				return splt;
 			}
 		}
@@ -496,11 +497,12 @@ public class KMyMoneyWritableStockBuySellTransactionImpl extends KMyMoneyWritabl
 		
 		// ---
 		
-		if ( offsettingAcct.getType() != KMyMoneyAccount.Type.CHECKING ) {
+		if ( offsettingAcct.getType() != KMyMoneyAccount.Type.CHECKING &&
+                     offsettingAcct.getType() != KMyMoneyAccount.Type.ASSET ) {
 			LOGGER.error("setOffsetttingAcct: " +
 						"Stock-buy transaction " + getID() + ": " +
-						"Account with ID " + offsettingAcct.getID() + " is not of type " + KMyMoneyAccount.Type.CHECKING);
-			throw new IllegalArgumentException("Account with ID " + offsettingAcct.getID() + " is not of type " + KMyMoneyAccount.Type.CHECKING);
+						"Account with ID " + offsettingAcct.getID() + " is not of type " + KMyMoneyAccount.Type.CHECKING + " or " + KMyMoneyAccount.Type.ASSET);
+			throw new IllegalArgumentException("Account with ID " + offsettingAcct.getID() + " is not of type " + KMyMoneyAccount.Type.CHECKING + " or " + KMyMoneyAccount.Type.ASSET);
 		}
 		
 		boolean acctChange = false;
@@ -977,7 +979,8 @@ public class KMyMoneyWritableStockBuySellTransactionImpl extends KMyMoneyWritabl
 	// ----------------------------
 	
 	protected void validateStockAcctSplit(final KMyMoneyTransactionSplit splt) throws TransactionValidationException {
-		if ( splt.getAction() != KMyMoneyTransactionSplit.Action.BUY_SHARES ) {
+		if ( splt.getAction() != KMyMoneyTransactionSplit.Action.BUY_SHARES &&
+			 splt.getAction() != KMyMoneyTransactionSplit.Action.SELL_SHARES ) { // SELL_SHARES is never actually used, but for symmetry's sake...
 			String msg = "the split's action is not valid";
 			LOGGER.error("validateStockAcctSplit: " + msg);
 			throw new TransactionValidationException("msg");
@@ -1068,7 +1071,8 @@ public class KMyMoneyWritableStockBuySellTransactionImpl extends KMyMoneyWritabl
 			throw new TransactionValidationException(msg);
 		}
 		
-		if ( splt.getAccount().getType() != KMyMoneyAccount.Type.CHECKING ) {
+		if ( splt.getAccount().getType() != KMyMoneyAccount.Type.CHECKING &&
+			 splt.getAccount().getType() != KMyMoneyAccount.Type.ASSET ) {
 			String msg = "the split's account's type is not valid";
 			LOGGER.error("validateOffsettingAcctSplit: " + msg);
 			throw new TransactionValidationException(msg);

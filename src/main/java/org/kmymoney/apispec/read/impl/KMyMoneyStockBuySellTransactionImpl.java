@@ -125,7 +125,8 @@ public class KMyMoneyStockBuySellTransactionImpl extends KMyMoneyTransactionImpl
 			} catch ( Exception exc ) {
 				throw new IllegalArgumentException("argument <trx>: something went wrong");
 			}
-		} else if ( splt.getAccount().getType() == KMyMoneyAccount.Type.CHECKING ) {
+		} else if ( splt.getAccount().getType() == KMyMoneyAccount.Type.CHECKING ||
+					splt.getAccount().getType() == KMyMoneyAccount.Type.ASSET ) {
 			try {
 				validateOffsettingAcctSplit(splt);
 			} catch ( TransactionValidationException exc ) {
@@ -239,7 +240,8 @@ public class KMyMoneyStockBuySellTransactionImpl extends KMyMoneyTransactionImpl
 	// ----------------------------
 	
 	protected void validateStockAcctSplit(final KMyMoneyTransactionSplit splt) throws TransactionValidationException {
-		if ( splt.getAction() != KMyMoneyTransactionSplit.Action.BUY_SHARES ) {
+		if ( splt.getAction() != KMyMoneyTransactionSplit.Action.BUY_SHARES &&
+			 splt.getAction() != KMyMoneyTransactionSplit.Action.SELL_SHARES ) { // SELL_SHARES is never actually used, but symmetry's sake
 			String msg = "the split's action is not valid";
 			LOGGER.error("validateStockAcctSplit: " + msg);
 			throw new TransactionValidationException("msg");
@@ -330,7 +332,8 @@ public class KMyMoneyStockBuySellTransactionImpl extends KMyMoneyTransactionImpl
 			throw new TransactionValidationException(msg);
 		}
 		
-		if ( splt.getAccount().getType() != KMyMoneyAccount.Type.CHECKING ) {
+		if ( splt.getAccount().getType() != KMyMoneyAccount.Type.CHECKING &&
+			 splt.getAccount().getType() != KMyMoneyAccount.Type.ASSET ) {
 			String msg = "the split's account's type is not valid";
 			LOGGER.error("validateOffsettingAcctSplit: " + msg);
 			throw new TransactionValidationException(msg);
@@ -433,7 +436,8 @@ public class KMyMoneyStockBuySellTransactionImpl extends KMyMoneyTransactionImpl
     		throw new TransactionSplitNotFoundException();
 	
 		for ( KMyMoneyTransactionSplit splt : getSplits() ) {
-			if ( splt.getAccount().getType() == KMyMoneyAccount.Type.CHECKING ) {
+			if ( splt.getAccount().getType() == KMyMoneyAccount.Type.CHECKING ||
+				 splt.getAccount().getType() == KMyMoneyAccount.Type.ASSET ) {
 				return splt;
 			}
 		}
