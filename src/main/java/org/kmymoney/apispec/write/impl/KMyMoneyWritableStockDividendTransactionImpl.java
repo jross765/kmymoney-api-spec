@@ -74,6 +74,7 @@ public class KMyMoneyWritableStockDividendTransactionImpl extends KMyMoneyWritab
 		try {
 			validate();
 		} catch ( TransactionValidationException exc ) {
+			System.err.println( exc.getMessage() );
 			throw new IllegalArgumentException("argument <trx> does not meet the criteria for a stock-dividend transaction");
 		} catch ( Exception exc ) {
 			throw new IllegalArgumentException("argument <trx>: something went wrong");
@@ -730,7 +731,8 @@ public class KMyMoneyWritableStockDividendTransactionImpl extends KMyMoneyWritab
 	// ----------------------------
 	
 	private void validateStockAcctSplit(final KMyMoneyTransactionSplit splt) throws TransactionValidationException {
-		if ( splt.getAction() != KMyMoneyTransactionSplit.Action.DIVIDEND ) {
+		if ( splt.getAction() != KMyMoneyTransactionSplit.Action.DIVIDEND &&
+			 splt.getAction() != KMyMoneyTransactionSplit.Action.YIELD) { // YIELD not used in practice, but still...
 			String msg = "the split's action is not valid";
 			LOGGER.error("validateStockAcctSplit: " + msg);
 			throw new TransactionValidationException("msg");

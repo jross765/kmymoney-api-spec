@@ -65,6 +65,7 @@ public class KMyMoneyWritableStockBuySellTransactionImpl extends KMyMoneyWritabl
 		try {
 			validate();
 		} catch ( TransactionValidationException exc ) {
+			System.err.println( exc.getMessage() );
 			throw new IllegalArgumentException("argument <trx> does not meet the criteria for a stock-buy-sell transaction");
 		} catch ( Exception exc ) {
 			throw new IllegalArgumentException("argument <trx>: something went wrong");
